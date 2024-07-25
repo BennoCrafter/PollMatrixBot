@@ -65,7 +65,7 @@ async def on_message(room, message):
 
     poll = get_active_poll_in_room(room.room_id)
     if poll:
-        poll.add_response(message.body)
+        poll.add_response(message.body, message.sender)
         await bot.api.send_reaction(room.room_id, message, "✅")
         print(poll.formated())
         # await bot.api.edit(poll.room.room_id, poll.event.event_id, poll.formated())
