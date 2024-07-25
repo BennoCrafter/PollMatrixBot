@@ -1,15 +1,17 @@
 import os
 import simplematrixbotlib as botlib
 from src.poll import Poll
+from dotenv import load_dotenv
 
+load_dotenv()
 # deleting session.txt file, to prevent message looping
 if os.path.exists("session.txt"):
     os.remove("session.txt")
 # Initialize bot credentials from environment variables
 creds = botlib.Creds(
-    homeserver=os.environ['HOMESERVER'],
-    username=os.environ['USERNAME'],
-    password=os.environ['PASSWORD']
+    homeserver=os.getenv('HOMESERVER'),
+    username=os.getenv('USERNAME'),
+    password=os.getenv('PASSWORD')
 )
 bot = botlib.Bot(creds)
 PREFIX = '!'
