@@ -1,4 +1,5 @@
-l = ["w", "o", "r", "l", "d"]
+s = "@example:matrix.org"
 
-s = l.index("w")
-print(s)
+w = s[1:].split(":")[0]
+
+print(w)
