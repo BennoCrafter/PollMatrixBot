@@ -53,5 +53,6 @@ Close a poll and get a status report sent.
 
  
 Made for denkbares
+
 [simplematrixbotlib]: https://img.shields.io/badge/Framework-simplematrixbotlib-blue
 [Simplematrixbotlib-url]: https://codeberg.org/imbev/simplematrixbotlib
