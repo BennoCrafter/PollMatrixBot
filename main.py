@@ -34,11 +34,13 @@ def unicode_to_emoji(unicode_str: str) -> str:
     """Convert a Unicode string to an emoji."""
     return unicode_str.encode('utf-8').decode('unicode_escape')
 
+
 async def get_sender_name(sender: str):
     """Get the name of the sender."""
     w = await bot.async_client.get_displayname(sender)
     w = w.displayname
     return w
+
 
 @bot.listener.on_message_event
 async def on_message(room, message):
@@ -55,8 +57,7 @@ async def on_message(room, message):
                                                         limit=1)
         messages = response.chunk
         active_polls.append(
-            Poll(id=len(active_polls), event=messages[0], room=room,
-                 items=[]))
+            Poll(id=len(active_polls), event=messages[0], room=room, items=[]))
         return
 
     if is_valid(match, "close"):
@@ -71,14 +72,16 @@ async def on_message(room, message):
     poll = get_active_poll_in_room(room.room_id)
     if poll:
         se = await get_sender_name(message.sender)
-        poll.add_response(message.body, se)
+        poll.add_response(message.body, str(se))
         await bot.api.send_reaction(room.room_id, message, "✅")
         print(poll.formated())
         # await bot.api.edit(poll.room.room_id, poll.event.event_id, poll.formated())
 
+
 @bot.listener.on_reaction_event
 async def on_reaction(room, reaction, k):
     print(reaction)
+
 
 bot.run()
 
