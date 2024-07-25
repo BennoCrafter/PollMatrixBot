@@ -14,9 +14,11 @@ class Poll:
         else:
             self.items.append(Item(item_name, 1, [user]))
 
-    def get_item(self, item_name: str) -> Item:
-        i_names = [item.name for item in self.items]
-        return self.items[i_names.index(item_name)]
+    def get_item(self, item_name: str) -> Item | None:
+        for item in self.items:
+            if item.name == item_name:
+                return item
+        return None
 
     def formated(self) -> str:
         r = "Poll Results:\n"
