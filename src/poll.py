@@ -1,20 +1,28 @@
-class Poll:
+from src.item import Item
 
-    def __init__(self, id, event, room, result={}):
+class Poll:
+    def __init__(self, id, event, room, items):
         self.id = id
         self.event = event
         self.room = room
-        self.result = result
+        self.items = items
 
-    def add_response(self, rsp: str):
-        if rsp not in self.result:
-            self.result[rsp] = 0
-        self.result[rsp] += 1
+    def add_response(self, item_name: str, user: str):
+        i_names = [item.name for item in self.items]
+
+        if item_name not in i_names:
+            self.items.append(Item(item_name, 0, []))
+
+        self.items[i_names.index(item_name)].add(user)
 
     def formated(self) -> str:
-        return "Poll Results:\n" + "\n".join(
-            [f"{rsp}: {self.result[rsp]}" for rsp in self.result])
+        r = "Poll Results:\n"
+        for item in self.items:
+            r += f"{item.name}: {item.count}\n"
+        return r
 
     def formated_markdown(self) -> str:
-        return "## Poll Results:\n" + "\n".join(
-            [f"- {self.result[rsp]}x {rsp}" for rsp in self.result])
+        r = "## Poll Results:\n"
+        for item in self.items:
+            r += f"- {item.count}x {item.name} ({', '.join(item.users)})\n"
+        return r
