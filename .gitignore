@@ -1,3 +1,9 @@
-matrix_bot_env
-.env
 __pycache__
+matrix_bot_env
+store
+session.txt
+
+
+.env
+.git
+.replit

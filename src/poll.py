@@ -1,4 +1,5 @@
 class Poll:
+
     def __init__(self, id, event, room, result={}):
         self.id = id
         self.event = event
@@ -11,7 +12,9 @@ class Poll:
         self.result[rsp] += 1
 
     def formated(self) -> str:
-        return "Poll Results:\n" + "\n".join([f"{rsp}: {self.result[rsp]}" for rsp in self.result])
+        return "Poll Results:\n" + "\n".join(
+            [f"{rsp}: {self.result[rsp]}" for rsp in self.result])
 
     def formated_markdown(self) -> str:
-        return "## Poll Results:\n" + "\n".join([f"- {rsp}: {self.result[rsp]}" for rsp in self.result])
+        return "## Poll Results:\n" + "\n".join(
+            [f"- {self.result[rsp]}x {rsp}" for rsp in self.result])
