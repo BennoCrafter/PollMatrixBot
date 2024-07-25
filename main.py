@@ -2,6 +2,8 @@ import os
 import simplematrixbotlib as botlib
 from src.poll import Poll
 
+# deleting session.txt file, to prevent message looping
+os.remove("session.txt")
 # Initialize bot credentials from environment variables
 creds = botlib.Creds(
     homeserver=os.environ['HOMESERVER'],
