@@ -38,7 +38,9 @@ def unicode_to_emoji(unicode_str: str) -> str:
 @bot.listener.on_message_event
 async def on_message(room, message):
     match = botlib.MessageMatch(room, message, bot, PREFIX)
-
+    # return if message is from this bot
+    if not match.is_not_from_this_bot():
+        return
     if is_valid(match, "create") and match.args():
         title = ' '.join(match.args())
         await bot.api.send_markdown_message(room.room_id, f"## {title}")
@@ -62,7 +64,7 @@ async def on_message(room, message):
         return
 
     poll = get_active_poll_in_room(room.room_id)
-    if poll and poll.event.event_id != message.event_id:
+    if poll:
         poll.add_response(message.body)
         await bot.api.send_reaction(room.room_id, message, "✅")
         print(poll.formated())
