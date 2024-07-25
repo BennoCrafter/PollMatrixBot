@@ -8,12 +8,15 @@ class Poll:
         self.items = items
 
     def add_response(self, item_name: str, user: str):
+        item = self.get_item(item_name)
+        if item:
+            item.add(user)
+        else:
+            self.items.append(Item(item_name, 1, [user]))
+
+    def get_item(self, item_name: str) -> Item:
         i_names = [item.name for item in self.items]
-
-        if item_name not in i_names:
-            self.items.append(Item(item_name, 0, []))
-
-        self.items[i_names.index(item_name)].add(user)
+        return self.items[i_names.index(item_name)]
 
     def formated(self) -> str:
         r = "Poll Results:\n"
