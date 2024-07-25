@@ -71,7 +71,7 @@ async def on_message(room, message):
         # await bot.api.edit(poll.room.room_id, poll.event.event_id, poll.formated())
 
 @bot.listener.on_reaction_event
-async def on_reaction(room, reaction):
+async def on_reaction(room, reaction, k):
     print(reaction)
 
 bot.run()
