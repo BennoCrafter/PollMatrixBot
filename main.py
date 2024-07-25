@@ -36,7 +36,7 @@ def unicode_to_emoji(unicode_str: str) -> str:
 
 async def get_sender_name(sender: str):
     """Get the name of the sender."""
-    w = await bot.async_client.get_displayname(sender)
+    w = await bot.async_client.get_displayname(sender).displayname
     return w
 
 @bot.listener.on_message_event
@@ -71,6 +71,7 @@ async def on_message(room, message):
     if poll:
         se = await get_sender_name(message.sender)
         poll.add_response(message.body, se)
+        await bot.async_client.get
         await bot.api.send_reaction(room.room_id, message, "✅")
         print(poll.formated())
         # await bot.api.edit(poll.room.room_id, poll.event.event_id, poll.formated())
