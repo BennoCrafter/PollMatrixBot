@@ -51,7 +51,7 @@ async def on_message(room, message):
         messages = response.chunk
         active_polls.append(
             Poll(id=len(active_polls), event=messages[0], room=room,
-                 result={}))
+                 items=[]))
         return
 
     if is_valid(match, "close"):
