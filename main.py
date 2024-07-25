@@ -68,6 +68,9 @@ async def on_message(room, message):
         print(poll.formated())
         # await bot.api.edit(poll.room.room_id, poll.event.event_id, poll.formated())
 
+@bot.listener.on_reaction_event
+async def on_reaction(room, reaction):
+    print(reaction)
 
 bot.run()
 
