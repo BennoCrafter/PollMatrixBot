@@ -2,6 +2,7 @@ import os
 import simplematrixbotlib as botlib
 from src.poll import Poll
 from dotenv import load_dotenv
+from src.utils.insert_invisible_char import insert_invisible_char
 
 load_dotenv()
 # deleting session.txt file, to prevent message looping
@@ -72,7 +73,7 @@ async def on_message(room, message):
     poll = get_active_poll_in_room(room.room_id)
     if poll:
         se = await get_sender_name(message.sender)
-        poll.add_response(message.body, f"```{str(se)}```")
+        poll.add_response(message.body, f"{se}")
         await bot.api.send_reaction(room.room_id, message, "✅")
         print(poll.formated())
         # await bot.api.edit(poll.room.room_id, poll.event.event_id, poll.formated())

@@ -1,6 +1,9 @@
 from src.item import Item
+from src.utils.insert_invisible_char import insert_invisible_char
+
 
 class Poll:
+
     def __init__(self, id, event, room, items):
         self.id = id
         self.event = event
@@ -29,5 +32,5 @@ class Poll:
     def formated_markdown(self) -> str:
         r = "## Poll Results:\n"
         for item in self.items:
-            r += f"- {item.count}x {item.name} ({', '.join(item.users)})\n"
+            r += f"- {item.count}x {item.name} ({', '.join(insert_invisible_char(u) for u in item.users)})\n"
         return r
