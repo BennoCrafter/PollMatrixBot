@@ -70,6 +70,16 @@ async def on_message(room, message):
             active_polls.remove(poll)
         return
 
+    if is_valid(match, "status"):
+        poll = get_active_poll_in_room(room.room_id)
+        if poll:
+            await bot.api.send_markdown_message(
+                room_id=room.room_id, message=poll.formated_markdown())
+        return
+
+    if is_valid(match, "remove"):
+        pass
+
     poll = get_active_poll_in_room(room.room_id)
     if poll:
         se = await get_sender_name(message.sender)
@@ -81,7 +91,8 @@ async def on_message(room, message):
 
 @bot.listener.on_reaction_event
 async def on_reaction(room, reaction, k):
-    print(reaction)
+    # print(reaction)
+    pass
 
 
 bot.run()

@@ -19,7 +19,7 @@ class Poll:
 
     def get_item(self, item_name: str) -> Item | None:
         for item in self.items:
-            if item.name == item_name:
+            if item.name.lower() == item_name.lower():
                 return item
         return None
 
@@ -32,5 +32,5 @@ class Poll:
     def formated_markdown(self) -> str:
         r = "## Poll Results:\n"
         for item in self.items:
-            r += f"- {item.count}x {item.name} ({', '.join(insert_invisible_char(u) for u in item.users)})\n"
+            r += f"- {item.count}x {item.name} ({', '.join(f"```{insert_invisible_char(u)}```" for u in item.users)})\n"
         return r
