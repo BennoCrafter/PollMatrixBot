@@ -32,10 +32,12 @@ bot = botlib.Bot(creds)
 
 def is_valid(match: botlib.MessageMatch, valid_commands: list[str]) -> bool:
     """Check if the message matches the given command."""
+    # check if the message starts with the prefix
     if match._prefix == match.event.body[0:len(match._prefix)]:
         body_without_prefix = match.event.body[len(match._prefix):]
     else:
         return False
+
     command = body_without_prefix.split()[0]
 
     return command in valid_commands and match.is_not_from_this_bot()
