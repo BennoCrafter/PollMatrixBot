@@ -105,8 +105,12 @@ async def on_message(room, message):
             await handle_error(room, message)
             return
 
-        name = " ".join(match.args())
+        quantity_num, name = get_quantity_number(" ".join(
+            match.args()).strip())
+        count = quantity_num or 1
+        name = name or " ".join(match.args()).strip()
         item = poll.get_item(name)
+
         msg_sender = await get_sender_name(message.sender)
 
         if not item:
@@ -116,9 +120,9 @@ async def on_message(room, message):
         if msg_sender not in item.user_count:
             await handle_error(room, message)
             return
-
-        quantity_num, msg = get_quantity_number(" ".join(match.args()).strip())
-        count = quantity_num or 1
+        if count > item.user_count[msg_sender]:
+            await handle_error(room, message)
+            return
 
         item.decrease(msg_sender, count)
         if not item.user_count:
