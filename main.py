@@ -129,9 +129,9 @@ async def on_message(room, message):
     if not poll:
         return
 
-    quantity_num, msg = get_quantity_number(message.body)
+    quantity_num, msg = get_quantity_number(message.body.strip())
     count = quantity_num or 1
-    msg = msg or message.body
+    msg = msg or message.body.strip()
     sender_name = await get_sender_name(message.sender)
     poll.add_response(msg, sender_name, count)
     await bot.api.send_reaction(room.room_id, message,
