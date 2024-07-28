@@ -117,7 +117,10 @@ async def on_message(room, message):
             await handle_error(room, message)
             return
 
-        item.remove(msg_sender)
+        quantity_num, msg = get_quantity_number(" ".join(match.args()).strip())
+        count = quantity_num or 1
+
+        item.decrease(msg_sender, count)
         if not item.user_count:
             poll.remove_item(item)
 

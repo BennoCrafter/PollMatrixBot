@@ -11,6 +11,13 @@ class ItemEntry:
             self.user_count[user] = 0
         self.user_count[user] += count
 
+    def decrease(self, user: str, count: int) -> None:
+        if user not in self.user_count:
+            return
+        self.user_count[user] -= count
+        if self.user_count[user] <= 0:
+            self.user_count.pop(user)
+
     def get(self, user: str) -> int:
         if user not in self.user_count:
             return -1
