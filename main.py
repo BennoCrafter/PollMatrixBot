@@ -29,7 +29,8 @@ bot = botlib.Bot(creds)
 
 def is_valid(match: botlib.MessageMatch, valid_commands: list[str]) -> bool:
     """Check if the message matches the given command."""
-    command = match.event.body[len(match._prefix):]
+    msg_without_prefix = match.event.body[len(match._prefix):]
+    command = msg_without_prefix.split()[0]
     return command in valid_commands and match.is_not_from_this_bot()
 
 
