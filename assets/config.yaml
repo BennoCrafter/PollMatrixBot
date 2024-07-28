@@ -1,0 +1,6 @@
+help_message_file: "assets/help_message.md"
+# Reactions
+reaction:
+  error: "❌"
+  success: "✅"
+  removed: "🗑"
