@@ -120,7 +120,7 @@ async def on_message(room, message):
     if poll:
         sender_name = await get_sender_name(message.sender)
         poll.add_response(message.body, sender_name)
-        await bot.api.send_reaction(room.room_id, message, config["reaction"]["sucess"])
+        await bot.api.send_reaction(room.room_id, message, config["reaction"]["success"])
 
 
 @bot.listener.on_reaction_event
