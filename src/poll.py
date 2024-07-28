@@ -9,12 +9,12 @@ class Poll:
         self.room = room
         self.item_entries: list[ItemEntry] = item_entries
 
-    def add_response(self, item_name: str, user: str) -> None:
+    def add_response(self, item_name: str, user: str, count: int) -> None:
         item_entry = self.get_item(item_name)
         if item_entry:
-            item_entry.add(user, 1)
+            item_entry.add(user, count)
         else:
-            self.item_entries.append(ItemEntry(item_name, {user: 1}))
+            self.item_entries.append(ItemEntry(item_name, {user: count}))
 
     def get_item(self, item_name: str) -> ItemEntry | None:
         for item_entry in self.item_entries:
