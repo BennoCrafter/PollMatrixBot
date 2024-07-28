@@ -6,6 +6,8 @@ from src.poll import Poll
 from src.utils.insert_invisible_char import insert_invisible_char
 from src.utils.load_config import load_config
 from src.utils.get_quantity_number import get_quantity_number
+from src.utils.load_file import load_file
+
 
 # Load environment variables
 load_dotenv()
@@ -16,6 +18,7 @@ config = load_config("assets/config.yaml")
 # Extract config values
 session_file = config["session_file"]
 PREFIX = config["prefix"]
+help_message = load_file(config["help_message_file"])
 
 active_polls: list[Poll] = []
 
@@ -68,8 +71,7 @@ async def on_message(room, message):
         return
 
     if is_valid(match, config["commands"]["help_command"]):
-        await bot.api.send_markdown_message(room.room_id,
-                                            config["help_message_file"])
+        await bot.api.send_markdown_message(room.room_id, help_message)
         return
 
     if is_valid(match, config["commands"]["create_poll_command"]):
@@ -120,6 +122,7 @@ async def on_message(room, message):
         if msg_sender not in item.user_count:
             await handle_error(room, message)
             return
+
         if count > item.user_count[msg_sender]:
             await handle_error(room, message)
             return
