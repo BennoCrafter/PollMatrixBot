@@ -1,41 +1,36 @@
-from src.item import Item
+from src.item import ItemEntry
 from src.utils.insert_invisible_char import insert_invisible_char
 
 
 class Poll:
-    def __init__(self, id: int, name: str, room, items: list[Item]) -> None:
+    def __init__(self, id: int, name: str, room, item_entries: list[ItemEntry]) -> None:
         self.id: int = id
         self.name: str = name
         self.room = room
-        self.items: list[Item] = items
+        self.item_entries: list[ItemEntry] = item_entries
 
     def add_response(self, item_name: str, user: str) -> None:
-        item = self.get_item(item_name)
-        if item:
-            item.add(user)
+        item_entry = self.get_item(item_name)
+        if item_entry:
+            item_entry.add(user, 1)
         else:
-            self.items.append(Item(item_name, 1, [user]))
+            self.item_entries.append(ItemEntry(item_name, {user: 1}))
 
-    def get_item(self, item_name: str) -> Item | None:
-        for item in self.items:
-            if self.compare(item.name, item_name):
-                return item
+    def get_item(self, item_name: str) -> ItemEntry | None:
+        for item_entry in self.item_entries:
+            if self.equals(item_entry.name, item_name):
+                return item_entry
         return None
 
-    def remove_item(self, item: Item) -> None:
-        self.items.remove(item)
+    def remove_item(self, item_entry: ItemEntry) -> None:
+        self.item_entries.remove(item_entry)
 
-    def compare(self, item_name1: str, item_name2: str) -> bool:
+    def equals(self, item_name1: str, item_name2: str) -> bool:
         return item_name1.lower() == item_name2.lower()
 
-    def formated(self) -> str:
-        r = "Poll Results:\n"
-        for item in self.items:
-            r += f"{item.name}: {item.count}\n"
-        return r
 
     def formated_markdown(self) -> str:
         r = f"## Shopping list {self.name}:\n"
-        for item in self.items:
-            r += f"- {item.count}x {item.name} ({', '.join(f"```{insert_invisible_char(u)}```" for u in item.users)})\n"
+        for item_entry in self.item_entries:
+            r += f"- {item_entry.get_total_count()}x {item_entry.name} {item_entry.format_users()}\n"
         return r

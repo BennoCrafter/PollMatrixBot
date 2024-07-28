@@ -40,7 +40,7 @@ def is_valid(match: botlib.MessageMatch, valid_commands: list[str]) -> bool:
 
     command = body_without_prefix.split()[0]
 
-    return command in valid_commands and match.is_not_from_this_bot()
+    return command in valid_commands
 
 def get_active_poll_in_room(room_id: str) -> Poll | None:
     """Check if there is an active poll in the given room and return it."""
@@ -72,7 +72,7 @@ async def on_message(room, message):
 
         title = ' '.join(match.args())
         await bot.api.send_markdown_message(room.room_id, f"## {title}")
-        active_polls.append(Poll(id=len(active_polls), name=title, room=room, items=[]))
+        active_polls.append(Poll(id=len(active_polls), name=title, room=room, item_entries=[]))
         return
 
     if is_valid(match, config["commands"]["close_poll_command"]):
@@ -103,12 +103,12 @@ async def on_message(room, message):
             await handle_error(room, message)
             return
 
-        if msg_sender not in item.users:
+        if msg_sender not in item.user_count:
             await handle_error(room, message)
             return
 
         item.remove(msg_sender)
-        if not item.users:
+        if not item.user_count:
             poll.remove_item(item)
 
         await bot.api.send_reaction(room.room_id, message, config["reaction"]["removed"])

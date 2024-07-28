@@ -1,1 +1,0 @@
-INVISIBLE_CHAR = "\u200B"
