@@ -8,9 +8,16 @@ from src.utils.load_config import load_config
 # Load environment variables
 load_dotenv()
 
+# Load config file
+config = load_config("assets/config.yaml")
+# load config values
+session_file = config["session_file"]
+PREFIX = config["prefix"]
+
+active_polls: list[Poll] = []
+
 # Delete session.txt file to prevent message looping
-session_file = "session.txt"
-if os.path.exists(session_file):
+if os.path.exists(session_file) and config["delete_session_file_on_start"]:
     os.remove(session_file)
 
 # Initialize bot credentials from environment variables
@@ -18,15 +25,12 @@ creds = botlib.Creds(homeserver=os.getenv('HOMESERVER'),
                      username=os.getenv('USERNAME'),
                      password=os.getenv('PASSWORD'))
 bot = botlib.Bot(creds)
-PREFIX = '!'
-active_polls: list[Poll] = []
-config = load_config("assets/config.yaml")
 
 
-def is_valid(match: botlib.MessageMatch, command_name: str) -> bool:
+def is_valid(match: botlib.MessageMatch, valid_commands: list[str]) -> bool:
     """Check if the message matches the given command."""
-    return (match.is_not_from_this_bot() and match.prefix()
-            and match.command(command_name))
+    command = match.event.body[len(match._prefix):]
+    return command in valid_commands and match.is_not_from_this_bot()
 
 
 def get_active_poll_in_room(room_id: str) -> Poll | None:
@@ -54,20 +58,21 @@ async def on_message(room, message):
     if not match.is_not_from_this_bot():
         return
 
-    if is_valid(match, "help"):
+    if is_valid(match, config["commands"]["help_command"]):
         await bot.api.send_markdown_message(room.room_id, config["help_message_file"])
+        return
 
-    if is_valid(match, "create") or is_valid(match, "lunchy"):
+    if is_valid(match, config["commands"]["create_poll_command"]):
         if not match.args():
             await bot.api.send_reaction(room.room_id, message, config["reaction"]["error"])
-        
+
         title = ' '.join(match.args())
         await bot.api.send_markdown_message(room.room_id, f"## {title}")
         active_polls.append(
             Poll(id=len(active_polls), name=title, room=room, items=[]))
         return
 
-    if is_valid(match, "close"):
+    if is_valid(match, config["commands"]["close_poll_command"]):
         poll = get_active_poll_in_room(room.room_id)
         if poll:
             await bot.api.send_markdown_message(room.room_id,
@@ -75,14 +80,14 @@ async def on_message(room, message):
             active_polls.remove(poll)
         return
 
-    if is_valid(match, "status"):
+    if is_valid(match, config["commands"]["list_items_command"]):
         poll = get_active_poll_in_room(room.room_id)
         if poll:
             await bot.api.send_markdown_message(room.room_id,
                                                 poll.formated_markdown())
         return
 
-    if is_valid(match, "remove"):
+    if is_valid(match, config["commands"]["remove_item_command"]):
         poll = get_active_poll_in_room(room.room_id)
 
         if not poll or not match.args():

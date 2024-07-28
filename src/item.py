@@ -1,5 +1,4 @@
 class Item:
-
     def __init__(self, name, count, users) -> None:
         self.name = name
         self.count = count

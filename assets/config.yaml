@@ -1,6 +1,18 @@
 help_message_file: "assets/help_message.md"
+session_file: "session.txt"
+delete_session_file_on_start: true
+
+prefix: "!"
 # Reactions
 reaction:
   error: "❌"
   success: "✅"
   removed: "🗑"
+
+# commands
+commands:
+  help_command: ["help", "h"]
+  create_poll_command: ["create", "poll", "lunchy", "c"]
+  remove_item_command: ["remove", "r"]
+  list_items_command: ["list", "ls", "status"]
+  close_poll_command: ["close", "end", "finish"]

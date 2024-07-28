@@ -3,14 +3,13 @@ from src.utils.insert_invisible_char import insert_invisible_char
 
 
 class Poll:
-
-    def __init__(self, id, name, room, items):
-        self.id = id
-        self.name = name
+    def __init__(self, id: int, name: str, room, items: list[Item]) -> None:
+        self.id: int = id
+        self.name: str = name
         self.room = room
-        self.items = items
+        self.items: list[Item] = items
 
-    def add_response(self, item_name: str, user: str):
+    def add_response(self, item_name: str, user: str) -> None:
         item = self.get_item(item_name)
         if item:
             item.add(user)
@@ -19,12 +18,15 @@ class Poll:
 
     def get_item(self, item_name: str) -> Item | None:
         for item in self.items:
-            if item.name.lower() == item_name.lower():
+            if self.compare(item.name, item_name):
                 return item
         return None
 
     def remove_item(self, item: Item) -> None:
         self.items.remove(item)
+
+    def compare(self, item_name1: str, item_name2: str) -> bool:
+        return item_name1.lower() == item_name2.lower()
 
     def formated(self) -> str:
         r = "Poll Results:\n"
