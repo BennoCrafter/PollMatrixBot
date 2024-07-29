@@ -106,11 +106,10 @@ async def on_message(room, message):
         if not poll or not match.args():
             await handle_error(room, message)
             return
-
-        quantity_num, name = get_quantity_number(" ".join(
-            match.args()).strip())
+        body_msg = ' '.join(match.args()).strip()
+        quantity_num, name = get_quantity_number(body_msg)
         count = quantity_num or 1
-        name = name or " ".join(match.args()).strip()
+        name = name or body_msg
         item = poll.get_item(name)
 
         msg_sender = await get_sender_name(message.sender)
@@ -135,15 +134,17 @@ async def on_message(room, message):
                                     config["reaction"]["removed"])
         return
 
+    
     poll = get_active_poll_in_room(room.room_id)
     if not poll:
         return
-
-    quantity_num, msg = get_quantity_number(message.body.strip())
+        
+    body_msg = message.body.strip() 
+    quantity_num, item_name = get_quantity_number(body_msg)
     count = quantity_num or 1
-    msg = msg or message.body.strip()
+    item_name = item_name or body_msg
     sender_name = await get_sender_name(message.sender)
-    poll.add_response(msg, sender_name, count)
+    poll.add_response(item_name, sender_name, count)
     await bot.api.send_reaction(room.room_id, message,
                                 config["reaction"]["success"])
 
