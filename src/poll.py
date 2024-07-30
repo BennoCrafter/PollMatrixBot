@@ -32,5 +32,5 @@ class Poll:
     def formated_markdown(self) -> str:
         r = f"## Shopping list {self.name}:\n"
         for item_entry in self.item_entries:
-            r += f"- {item_entry.get_total_count()}x {item_entry.name} {item_entry.format_users()}\n"
+            r += f"- {item_entry.get_total_count()}x {item_entry.name} ({item_entry.format_users()})\n"
         return r

@@ -32,4 +32,4 @@ class ItemEntry:
         return sum(self.user_count.values())
 
     def format_users(self) -> str:
-        return ', '.join([f"(`{insert_invisible_char(k)}` {v})" for k, v in self.user_count.items()])
+        return ', '.join([f"`{insert_invisible_char(k)}` {v}" for k, v in self.user_count.items()])
