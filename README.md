@@ -41,6 +41,12 @@ HOMESERVER=your-matrix-homeservet
 
 ```
 
+### 5. Run main.py
+Just run the `main.py` file.
+```bash
+python main.py
+```
+
 ### Commands
 
 The Matrix Poll Bot supports the following commands:
