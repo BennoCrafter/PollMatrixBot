@@ -138,6 +138,7 @@ async def on_message(room, message):
     poll = get_active_poll_in_room(room.room_id)
     if not poll:
         return
+
         
     body_msg = message.body.strip() 
     quantity_num, item_name = get_quantity_number(body_msg)
@@ -154,4 +155,15 @@ async def on_reaction(room, reaction, k):
     pass
 
 
+def start_bot(bot_inst):
+    bot_inst.run()
+
+
+if __name__ == "__main__":
+    while True:
+        try:
+            start_bot(bot)
+        except Exception as e:
+            continue
+        
 bot.run()
