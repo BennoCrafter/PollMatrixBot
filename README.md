@@ -37,7 +37,7 @@ Create a .env file in the root of your project directory and add the following c
 ```makefile
 USERNAME=your-matrix-username
 PASSWORD=your-matrix-password
-HOMESERVER=your-matrix-homeservet
+HOMESERVER=your-matrix-homeserver
 
 ```
 
@@ -63,7 +63,5 @@ Close a poll and get a status report sent.
 #### !remove <item>
 Remove the given item from the poll.
  
-Made for denkbares
-
 [simplematrixbotlib]: https://img.shields.io/badge/Framework-simplematrixbotlib-blue
 [Simplematrixbotlib-url]: https://codeberg.org/imbev/simplematrixbotlib
