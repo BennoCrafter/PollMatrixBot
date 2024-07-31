@@ -139,8 +139,13 @@ async def on_message(room, message):
     if not poll:
         return
 
-        
-    body_msg = message.body.strip() 
+    if config["use_add_command"] == False:
+        body_msg = message.body.strip() 
+    elif is_valid(match, config["commands"]["add_item_command"]) and config["use_add_command"]:
+        body_msg = ' '.join(match.args()).strip()
+    else: 
+        return
+ 
     quantity_num, item_name = get_quantity_number(body_msg)
     count = quantity_num or 1
     item_name = item_name or body_msg

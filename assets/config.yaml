@@ -1,6 +1,8 @@
 help_message_file: "assets/help_message.md"
 session_file: "session.txt"
 delete_session_file_on_start: true
+use_add_command: true
+
 
 prefix: "!"
 # Reactions
@@ -16,3 +18,4 @@ commands:
   remove_item_command: ["remove", "r"]
   list_items_command: ["list", "ls", "status"]
   close_poll_command: ["close", "end", "finish"]
+  add_item_command: ["add", "a"]
