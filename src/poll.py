@@ -29,8 +29,8 @@ class Poll:
         return item_name1.lower() == item_name2.lower()
 
 
-    def formated_markdown(self) -> str:
-        r = f"## Shopping list {self.name}:\n"
+    def formated_markdown(self, title) -> str:
+        r = f"{title}\n"
         for item_entry in self.item_entries:
             r += f"- {item_entry.get_total_count()}x {item_entry.name} ({item_entry.format_users()})\n"
         return r

@@ -89,7 +89,7 @@ async def on_message(room, message):
         poll = get_active_poll_in_room(room.room_id)
         if poll:
             await bot.api.send_markdown_message(room.room_id,
-                                                poll.formated_markdown())
+                                                poll.formated_markdown(f"## Shopping list {poll.name} (closed):"))
             active_polls.remove(poll)
         return
 
@@ -97,7 +97,7 @@ async def on_message(room, message):
         poll = get_active_poll_in_room(room.room_id)
         if poll:
             await bot.api.send_markdown_message(room.room_id,
-                                                poll.formated_markdown())
+                                                poll.formated_markdown(f"## Shopping list {poll.name}:"))
         return
 
     if is_valid(match, config["commands"]["remove_item_command"]):

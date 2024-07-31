@@ -41,6 +41,9 @@ HOMESERVER=your-matrix-homeservet
 
 ```
 
+### Note
+Make sure you invite the user first when the bot is running. Otherwise the Bot will not join the given room.
+
 ### 5. Run main.py
 Just run the `main.py` file.
 ```bash
