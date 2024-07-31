@@ -60,6 +60,8 @@ Create a new poll with the specified title.
 #### !close
 Close a poll and get a status report sent.
 
+#### !remove <item>
+Remove the given item from the poll.
  
 Made for denkbares
 
