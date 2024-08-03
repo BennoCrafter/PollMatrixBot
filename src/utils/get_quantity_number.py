@@ -10,4 +10,4 @@ def get_quantity_number(s):
 
 
 if __name__ == "__main__":
-    print(get_quantity_number("2x wesschwurst"))
+    print(get_quantity_number("2x pizza hawaii"))
