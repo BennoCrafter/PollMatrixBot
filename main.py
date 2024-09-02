@@ -1,22 +1,15 @@
 from pathlib import Path
 import os
-import logging
 from dotenv import load_dotenv
 import simplematrixbotlib as botlib
 
 from src.poll import Poll
-from src.utils.insert_invisible_char import insert_invisible_char
 from src.utils.load_config import load_config
 from src.utils.get_quantity_number import get_quantity_number
 from src.utils.load_file import load_file
+from src.utils.logging_config import setup_logger
 
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    handlers=[
-                        logging.FileHandler("poll_matrix_bot.log"),
-                        logging.StreamHandler()
-                    ])
-
+logger = setup_logger()
 
 load_dotenv()
 config = load_config("assets/config.yaml")
@@ -26,7 +19,10 @@ session_file_path = Path(config["session_file"])
 if session_file_path.exists() and config.get("delete_session_file_on_start"):
     session_file_path.unlink()
 
-bot = initialize_bot()
+creds = botlib.Creds(homeserver=os.getenv('HOMESERVER'),
+                     username=os.getenv('USERNAME'),
+                     password=os.getenv('PASSWORD'))
+bot = botlib.Bot(creds)
 
 help_message = load_file(config["help_message_file"])
 active_polls = []
@@ -40,14 +36,6 @@ def load_configuration():
     return config
 
 
-def initialize_bot():
-    """Initialize bot credentials and return bot instance."""
-    creds = botlib.Creds(homeserver=os.getenv('HOMESERVER'),
-                         username=os.getenv('USERNAME'),
-                         password=os.getenv('PASSWORD'))
-    return botlib.Bot(creds)
-
-
 async def handle_error(room, event) -> None:
     await bot.api.send_reaction(room.room_id, event,
                                 config["reaction"]["error"])
@@ -56,7 +44,7 @@ async def handle_error(room, event) -> None:
 async def get_sender_name(sender: str) -> str:
     """Get the display name of the sender."""
     displayname_response = await bot.async_client.get_displayname(sender)
-    
+
     return displayname_response.displayname
 
 
@@ -64,7 +52,7 @@ def is_valid(match: botlib.MessageMatch, valid_commands: list[str]) -> bool:
     """Check if the message matches any of the valid commands."""
     body_without_prefix = match.event.body[len(match._prefix):]
     command = body_without_prefix.split()[0]
-    
+
     return command in valid_commands
 
 
@@ -88,8 +76,12 @@ async def handle_message(room, message, match, config):
         await list_items(room)
     elif is_valid(match, config["commands"]["remove_item_command"]):
         await remove_item(room, message, match)
-    else:
+    elif is_valid(match, config["commands"]
+                  ["add_item_command"]) and config["use_add_command"]:
         await add_item_to_poll(room, message, match, config)
+    else:
+        if not config["use_add_command"]:
+            await add_item_to_poll(room, message, match, config)
 
 
 async def create_poll(room, message, match):
@@ -101,7 +93,7 @@ async def create_poll(room, message, match):
     await bot.api.send_markdown_message(room.room_id, f"## {title}")
     p = Poll(id=len(active_polls), name=title, room=room, item_entries=[])
     active_polls.append(p)
-    
+
     logger.info(f"Poll Create Command Triggered: {str(p)}")
 
 
@@ -113,8 +105,7 @@ async def close_poll(room):
             poll.formated_markdown(
                 f"## {config['status_title']} {poll.name} (closed):"))
         active_polls.remove(poll)
-    logger.info(f"Poll Remove Command Triggered: {str(poll)}")
-
+    logger.info(f"Poll Close Command Triggered: {str(poll)}")
 
 
 async def list_items(room):
@@ -153,7 +144,9 @@ async def remove_item(room, message, match):
 
     await bot.api.send_reaction(room.room_id, message,
                                 config["reaction"]["removed"])
-    logger.info("Poll Item Remove Command Triggered: {item_name}, {quantity_num}")
+    logger.info(
+        "Poll Item Remove Command Triggered: {item_name}, {quantity_num}")
+
 
 async def add_item_to_poll(room, message, match, config):
     poll = get_active_poll_in_room(room.room_id)

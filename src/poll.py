@@ -3,7 +3,9 @@ from src.utils.insert_invisible_char import insert_invisible_char
 
 
 class Poll:
-    def __init__(self, id: int, name: str, room, item_entries: list[ItemEntry]) -> None:
+
+    def __init__(self, id: int, name: str, room,
+                 item_entries: list[ItemEntry]) -> None:
         self.id: int = id
         self.name: str = name
         self.room = room
@@ -35,4 +37,4 @@ class Poll:
         return r
 
     def __str__(self) -> str:
-        return f"Poll ID = {poll.id}, Name = '{poll.name}'"
+        return f"Poll ID = {self.id}, Name = '{self.name}'"
