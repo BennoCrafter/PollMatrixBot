@@ -1,7 +1,6 @@
 from pathlib import Path
-import asyncio
 import os
-import time
+import logging
 from dotenv import load_dotenv
 import simplematrixbotlib as botlib
 
@@ -11,17 +10,23 @@ from src.utils.load_config import load_config
 from src.utils.get_quantity_number import get_quantity_number
 from src.utils.load_file import load_file
 
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    handlers=[
+                        logging.FileHandler("poll_matrix_bot.log"),
+                        logging.StreamHandler()
+                    ])
+
+
 load_dotenv()
 config = load_config("assets/config.yaml")
 session_file_path = Path(config["session_file"])
+
 # Delete session.txt file if required by configuration.
 if session_file_path.exists() and config.get("delete_session_file_on_start"):
     session_file_path.unlink()
 
-creds = botlib.Creds(homeserver=os.getenv('HOMESERVER'),
-                     username=os.getenv('USERNAME'),
-                     password=os.getenv('PASSWORD'))
-bot = botlib.Bot(creds)
+bot = initialize_bot()
 
 help_message = load_file(config["help_message_file"])
 active_polls = []
@@ -35,7 +40,7 @@ def load_configuration():
     return config
 
 
-def initialize_bot(config):
+def initialize_bot():
     """Initialize bot credentials and return bot instance."""
     creds = botlib.Creds(homeserver=os.getenv('HOMESERVER'),
                          username=os.getenv('USERNAME'),
@@ -51,6 +56,7 @@ async def handle_error(room, event) -> None:
 async def get_sender_name(sender: str) -> str:
     """Get the display name of the sender."""
     displayname_response = await bot.async_client.get_displayname(sender)
+    
     return displayname_response.displayname
 
 
@@ -58,6 +64,7 @@ def is_valid(match: botlib.MessageMatch, valid_commands: list[str]) -> bool:
     """Check if the message matches any of the valid commands."""
     body_without_prefix = match.event.body[len(match._prefix):]
     command = body_without_prefix.split()[0]
+    
     return command in valid_commands
 
 
@@ -71,6 +78,7 @@ async def handle_message(room, message, match, config):
     """Handle incoming messages based on the command."""
     # todo
     if is_valid(match, config["commands"]["help_command"]):
+        logger.info("Command Trigger: Help message got triggerd!")
         await bot.api.send_markdown_message(room.room_id, help_message)
     elif is_valid(match, config["commands"]["create_poll_command"]):
         await create_poll(room, message, match)
@@ -91,8 +99,10 @@ async def create_poll(room, message, match):
 
     title = ' '.join(match.args())
     await bot.api.send_markdown_message(room.room_id, f"## {title}")
-    active_polls.append(
-        Poll(id=len(active_polls), name=title, room=room, item_entries=[]))
+    p = Poll(id=len(active_polls), name=title, room=room, item_entries=[])
+    active_polls.append(p)
+    
+    logger.info(f"Poll Create Command Triggered: {str(p)}")
 
 
 async def close_poll(room):
@@ -103,6 +113,8 @@ async def close_poll(room):
             poll.formated_markdown(
                 f"## {config['status_title']} {poll.name} (closed):"))
         active_polls.remove(poll)
+    logger.info(f"Poll Remove Command Triggered: {str(poll)}")
+
 
 
 async def list_items(room):
@@ -112,6 +124,7 @@ async def list_items(room):
             room.room_id,
             poll.formated_markdown(f"## {config['status_title']} {poll.name}:")
         )
+    logger.info(f"Poll Status Command Triggered: {str(poll)}")
 
 
 async def remove_item(room, message, match):
@@ -140,7 +153,7 @@ async def remove_item(room, message, match):
 
     await bot.api.send_reaction(room.room_id, message,
                                 config["reaction"]["removed"])
-
+    logger.info("Poll Item Remove Command Triggered: {item_name}, {quantity_num}")
 
 async def add_item_to_poll(room, message, match, config):
     poll = get_active_poll_in_room(room.room_id)
@@ -162,6 +175,7 @@ async def add_item_to_poll(room, message, match, config):
     poll.add_response(item_name, sender_name, count)
     await bot.api.send_reaction(room.room_id, message,
                                 config["reaction"]["success"])
+    logger.info(f"Poll Item Add Triggered: {item_name}, {quantity_num}")
 
 
 @bot.listener.on_message_event
@@ -178,5 +192,5 @@ async def on_reaction(room, reaction, k):
 
 
 if __name__ == "__main__":
-    print("Starting Bot...")
+    logger.info("Starting Bot...")
     bot.run()
