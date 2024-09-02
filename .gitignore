@@ -2,7 +2,7 @@ __pycache__
 matrix_bot_env
 store
 session.txt
-
+poll_matrix_bot.log
 
 .env
 .git
