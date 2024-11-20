@@ -1,6 +1,6 @@
 # PollMatrixBot
 
-[![simplematrixbotlib][simplematrixbotlib]][Simplematrixbotlib-url]
+[![simplematrixbotlib][simplematrixbotlib]][simplematrixbotlib-url]
 
 A handy bot for creating and managing polls in Matrix rooms.
 
@@ -74,3 +74,7 @@ HOMESERVER=your-matrix-homeserver
 ```
 
 Configure other things in ```assets/config.yaml```
+
+
+[simplematrixbotlib]: https://img.shields.io/badge/Framework-simplematrixbotlib-blue
+[simplematrixbotlib-url]: https://codeberg.org/imbev/simplematrixbotlib
