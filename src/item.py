@@ -1,6 +1,5 @@
 from src.utils.insert_invisible_char import insert_invisible_char
 
-
 class ItemEntry:
     def __init__(self, name, user_count: dict[str, int]) -> None:
         self.name: str = name

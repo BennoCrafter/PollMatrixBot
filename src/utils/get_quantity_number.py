@@ -1,6 +1,5 @@
 import re
 
-
 def get_quantity_number(s):
     # Check if the string starts with a number followed by 'x' and a ' '
     match = re.match(r'^(\d+)x ', s)

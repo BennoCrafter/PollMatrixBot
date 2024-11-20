@@ -1,0 +1,7 @@
+services:
+  lunchy:
+    build: .
+    container_name: lunchy
+    restart: unless-stopped
+    env_file:
+      - .env
