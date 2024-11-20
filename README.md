@@ -25,7 +25,7 @@ A handy bot for creating and managing polls in Matrix rooms.
 1. Clone the repository:
 
    ```bash
-   git clone [https://github.com/bennocrafter/pollmatrixbot.git](https://github.com/bennocrafter/pollmatrixbot.git)
+   git clone https://github.com/bennocrafter/pollmatrixbot.git
    cd PollMatrixBot
    ```
 
