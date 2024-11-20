@@ -4,19 +4,19 @@ Welcome to Poll Bot! Here's how to create and manage your polls:
 
 **Creating a Poll**
 **Start a Poll**: Use the `!create <name>` command to start a new poll.
-   - Example: `!create Eating list`
+  - Example: `!create Eating list`
 
 **Add Items**: After creating the poll, just start typing the items you want to add. Each message will be considered as a poll item. You can also add a quantity number. You can also change the config so u need to type `!add <item>` to add an item.
-   - Example: 
+  - Example:
      - Type `Apple`
      - Type `Pizza Hawaii`
      - Type `2x Pizza Hawaii`
-     
+
 **Close the Poll**: When you're done adding items, use the `!close` command to finalize the poll.
-   - Example: `!close`
+  - Example: `!close`
 
 **Remove an Item**: If you need to remove an item from the poll, use the `!remove <item>` command.
-   - Example: `!remove Apple`
+  - Example: `!remove Apple`
 
 **Commands Summary:**
 - `!create <name>`: Create a new poll with the specified name.

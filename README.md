@@ -1,80 +1,76 @@
-  # PollMatrixBot
-  [![simplematrixbotlib][simplematrixbotlib]][Simplematrixbotlib-url]
+# PollMatrixBot
 
-  A handy bot for creating and managing polls in Matrix rooms.
+[![simplematrixbotlib][simplematrixbotlib]][Simplematrixbotlib-url]
 
-  ## Features
+A handy bot for creating and managing polls in Matrix rooms.
 
-  - !create title: Create a new poll with the specified title.
-  - !close: Close the current poll.
-  - !remove <item>: Remove the given item from the poll.
-  - !list: List all items currently in the poll.
-  - !add <item>: Add a new item to the poll (if enabled in the configuration).
-  - !help: Display the help message with available commands.
+## Features
 
-  ## Setup
+* **!create title:** Create a new poll with the specified title.
+* **!close:** Close the current poll.
+* **!remove <item>:** Remove the given item from the poll.
+* **!list:** List all items currently in the poll.
+* **!add <item>:** Add a new item to the poll (if enabled in the configuration).
+* **!help:** Display the help message with available commands.
 
-  Follow these steps to set up your Matrix Poll Bot:
+## Installation
 
-  ### Note
-  Make sure you invite the user first when the bot is running. Otherwise the Bot will not join the given room.
+### Prerequisites
 
-  ### 1. Create a New Matrix Account
+* A Matrix account (Sign up at [Matrix.org](https://matrix.org))
+* Python 3.x and pip (package manager).  For installation instructions, refer to [Python official website](https://www.python.org/downloads/).
 
-  1. Go to [Matrix.org](https://matrix.org) and sign up for a new account.
-  2. Note down your username and password. You will need these for the bot configuration.
+### Using Docker Compose (Recommended)
 
-  ### 2. Clone the Repository
+1. Clone the repository:
 
-  ```bash
-  git clone https://github.com/bennocrafter/pollmatrixbot.git
-  cd PollMatrixBot
-  ```
+   ```bash
+   git clone [https://github.com/bennocrafter/pollmatrixbot.git](https://github.com/bennocrafter/pollmatrixbot.git)
+   cd PollMatrixBot
+   ```
 
-  ### 4. Configure Environment Variables
-  Create a .env file in the root of your project directory and add the following credentials:
+2. (Optional) Build the Docker image:
 
-  ```makefile
-  USERNAME=your-matrix-username
-  PASSWORD=your-matrix-password
-  HOMESERVER=your-matrix-homeserver
-  ```
+```bash
+docker-compose build
+```
 
-  ### 5. Build and Start the Bot Using Docker Compose
-  To build and start the bot using Docker Compose, run the following command from the root of your project directory:
+3. Start the bot in detached mode:
+```bash
+docker-compose up -d
+```
 
-  ```bash
-  docker-compose up -d
-  ```
-  This will build the Docker image (if it hasn't been built yet) and start the container in detached mode.
+### Running without Docker
 
-  ### Commands
+1. Install required dependencies:
 
-  The Matrix Poll Bot supports the following commands:
+```bash
+pip install -r requirements.txt
+```
 
-  #### !create title
-  Create a new poll with the specified title.
+2. Run the main script:
 
-  #### !close
-  Close a poll and get a status report sent.
+```bash
+python main.py
+```
 
-  #### !remove <item>
-  Remove the given item from the poll.
+## Commands
+The Matrix Poll Bot supports the following commands:
 
-  [simplematrixbotlib]: https://img.shields.io/badge/Framework-simplematrixbotlib-blue
-  [Simplematrixbotlib-url]: https://codeberg.org/imbev/simplematrixbotlib
+- **!create title**: Creates a new poll with the specified title.
+- **!close**: Closes the current poll and displays a status report.
+- **!remove <item>**: Removes the given item from the current poll (if enabled).
+- **!list**: Lists all options currently available in the poll.
+- **!add <item>**: Adds a new option to the current poll (if enabled, configurable).
+- **!help**: Displays the help message with available commands.
 
-  ### Run without Docker
+## Configuration
+Create a ```.env``` file in the project's root directory with the following environment variables:
 
-  ###  Install Dependencies
-  Make sure you have Python and pip installed. Then, install the required packages:
+```makefile
+USERNAME=your-matrix-username
+PASSWORD=your-matrix-password
+HOMESERVER=your-matrix-homeserver
+```
 
-  ```bash
-  pip install -r requirements.txt
-  ```
-
-  ### Run main.py
-  Just run the `main.py` file.
-  ```bash
-  python main.py
-  ```
+Configure other things in ```assets/config.yaml```

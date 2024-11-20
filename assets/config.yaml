@@ -1,11 +1,12 @@
 help_message_file: "assets/help_message.md"
 session_file: "session.txt"
+
 delete_session_file_on_start: true
 use_add_command: true
 status_title: "Shopping List"
+prefix: "!"
 default_quantity_number: 1
 
-prefix: "!"
 # Reactions
 reaction:
   error: "❌"
