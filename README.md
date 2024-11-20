@@ -18,7 +18,7 @@ A handy bot for creating and managing polls in Matrix rooms.
 ### Prerequisites
 
 * A Matrix account (Sign up at [Matrix.org](https://matrix.org))
-* Python 3.x and pip (package manager).  For installation instructions, refer to [Python official website](https://www.python.org/downloads/).
+* Python 3.x
 
 ### Using Docker Compose (Recommended)
 
