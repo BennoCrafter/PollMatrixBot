@@ -38,7 +38,6 @@
   USERNAME=your-matrix-username
   PASSWORD=your-matrix-password
   HOMESERVER=your-matrix-homeserver
-
   ```
 
   ### 5. Build and Start the Bot Using Docker Compose
@@ -49,7 +48,7 @@
   ```
   This will build the Docker image (if it hasn't been built yet) and start the container in detached mode.
 
-    ### Commands
+  ### Commands
 
   The Matrix Poll Bot supports the following commands:
 
