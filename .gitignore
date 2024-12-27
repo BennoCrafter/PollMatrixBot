@@ -4,7 +4,10 @@ store
 session.txt
 poll_matrix_bot.log
 
+.tags
 .env
 .git
 .replit
 replit.nix
+.DS_Store
+venv
