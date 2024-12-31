@@ -17,4 +17,4 @@ class CreatePollCommand(Command):
         if room is None or match is None or config is None:
             return
 
-        await PollManager.create_poll(room, match, bot, config)
+        await PollManager.create_poll(bot, room, match, config)

@@ -19,4 +19,4 @@ class AddCommand(Command):
         if room is None or match is None or config is None or message is None:
             return
 
-        await PollManager.add_item(room, message, match, bot, config)
+        await PollManager.add_item(bot, room, message, match, config)

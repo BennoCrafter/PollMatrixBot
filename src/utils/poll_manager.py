@@ -2,6 +2,9 @@ from src.poll import Poll
 import logging
 from src.utils.get_quantity_number import get_quantity_number
 from src.utils.handle_error import handle_error
+import simplematrixbotlib as botlib
+from nio.rooms import MatrixRoom
+from nio.events.room_events import RoomMessageText
 
 
 # Setup logger
@@ -13,14 +16,15 @@ class PollManager:
     """Centralized manager for handling polls."""
 
     @staticmethod
-    async def create_poll(room, match, bot, config):
+    async def create_poll(bot: botlib.Bot, room: MatrixRoom, match: botlib.MessageMatch, config: dict):
         """
         Creates a poll based on the provided arguments.
 
         Args:
-            room (botlib.Room): The room where the poll is created.
+            room (MatrixRoom): The room where the poll is created.
             match (botlib.MessageMatch): The matched message object with arguments.
             bot (botlib.Bot): The bot instance.
+            config (dict): Bot configuration dictionary.
         """
         # Ensure the message contains arguments
         if not match.args():
@@ -46,7 +50,7 @@ class PollManager:
         return next((poll for poll in active_polls if poll.room.room_id == room_id), None)
 
     @staticmethod
-    async def close_poll(bot, room_id: str) -> None:
+    async def close_poll(bot: botlib.Bot, room_id: str) -> None:
         """Close and remove a poll."""
         poll = PollManager.get_active_poll(room_id)
         if poll is None:
@@ -59,7 +63,7 @@ class PollManager:
         logger.info(f"Poll closed: {poll}")
 
     @staticmethod
-    async def add_item(room, message, match, bot, config):
+    async def add_item(bot: botlib.Bot, room: MatrixRoom, message: RoomMessageText, match: botlib.MessageMatch, config: dict):
         """Add an item to an active poll."""
         poll = PollManager.get_active_poll(room.room_id)
         if not poll:
@@ -79,13 +83,13 @@ class PollManager:
         logger.info(f"Added item '{item_name}' with quantity {quantity_num}")
 
     @staticmethod
-    async def get_sender_name(bot, sender: str) -> str:
+    async def get_sender_name(bot: botlib.Bot, sender: str) -> str:
         """Retrieve the display name of the message sender."""
         displayname_response = await bot.async_client.get_displayname(sender)
-        return displayname_response.displayname
+        return displayname_response.displayname # type: ignore
 
     @staticmethod
-    async def list_items(room, match, bot):
+    async def list_items(bot: botlib.Bot, room: MatrixRoom, match: botlib.MessageMatch):
         """List all items in an active poll."""
         poll = PollManager.get_active_poll(room.room_id)
         if not poll:
@@ -96,7 +100,7 @@ class PollManager:
         logger.info("Listed poll items")
 
     @staticmethod
-    async def remove_item(bot, room, message, match, config):
+    async def remove_item(bot: botlib.Bot, room: MatrixRoom, message: RoomMessageText, match: botlib.MessageMatch, config: dict):
         """Remove an item from an active poll."""
         poll = PollManager.get_active_poll(room.room_id)
         if not poll or not match.args():

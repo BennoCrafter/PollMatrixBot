@@ -1,6 +1,8 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from nio.events.room_events import ReactionEvent, RoomMessageText
+from nio.rooms import MatrixRoom
 import simplematrixbotlib as botlib
 
 from src.commands.add_command import AddCommand
@@ -55,16 +57,11 @@ def load_configuration():
     load_dotenv()
     return load_config("assets/config.yaml")
 
-def is_valid_command(match: botlib.MessageMatch, valid_commands: list[str]) -> bool:
-    """Check if the message matches a valid command."""
-    command = match.event.body[len(match._prefix):].split()[0]
-    return command in valid_commands
-
 def get_active_poll(room_id: str) -> Poll | None:
     """Retrieve the active poll in the given room, if any."""
     return next((poll for poll in active_polls if poll.room.room_id == room_id), None)
 
-async def handle_message(room, message, match: botlib.MessageMatch, config):
+async def handle_message(room: MatrixRoom, message: RoomMessageText, match: botlib.MessageMatch, config):
     """Process incoming messages and execute the corresponding command."""
 
     to_exec_command: Command | None = None
@@ -75,26 +72,25 @@ async def handle_message(room, message, match: botlib.MessageMatch, config):
 
     if to_exec_command is None:
         if not config["use_add_command"]:
-            await PollManager.add_item(room, message, match, bot, config)
+            await PollManager.add_item(bot, room, message, match, config)
             return
-        logger.info("nothing")
         return
 
     await to_exec_command.execute(bot, message.body, room=room, config=config, match=match, message=message)
 
 
-@bot.listener.on_message_event
-async def on_message(room, message) -> None:
+@bot.listener.on_message_event # type: ignore
+async def on_message(room: MatrixRoom, message: RoomMessageText) -> None:
     match = botlib.MessageMatch(room, message, bot, PREFIX)
     if match.is_not_from_this_bot():
         await handle_message(room, message, match, config)
 
-@bot.listener.on_reaction_event
-async def on_reaction(room, reaction, k) -> None:
+@bot.listener.on_reaction_event # type: ignore
+async def on_reaction(room: MatrixRoom, reaction: ReactionEvent, k: str) -> None:
     """Handle reactions; currently no operations defined."""
     pass
 
-@bot.listener.on_startup
+@bot.listener.on_startup  # type: ignore
 @once
 async def on_startup(w) -> None:
     logger.info("Bot started successfully.")

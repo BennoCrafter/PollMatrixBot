@@ -20,4 +20,4 @@ class ListItemsCommand(Command):
         #     await handle_error(room, message)
         #     return
 
-        await PollManager.list_items(room, match, bot)
+        await PollManager.list_items(bot, room, match)
