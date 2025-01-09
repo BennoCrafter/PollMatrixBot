@@ -3,7 +3,7 @@ from src.commands.command import Command
 import simplematrixbotlib as botlib
 from src.utils.load_file import load_file
 from src.poll import Poll
-from src.utils.poll_manager import PollManager
+from src.poll_manager import PollManager
 
 
 class RemoveItemCommand(Command):

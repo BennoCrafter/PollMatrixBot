@@ -18,7 +18,7 @@ from src.utils.get_quantity_number import get_quantity_number
 from src.utils.load_file import load_file
 from src.utils.logging_config import setup_logger
 from src.utils.once_decorator import once
-from src.utils.poll_manager import PollManager
+from src.poll_manager import PollManager
 
 # Setup logger
 logger = setup_logger()

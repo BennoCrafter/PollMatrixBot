@@ -34,14 +34,11 @@ class PollManager:
         # Create a poll title from the message arguments
         title = ' '.join(match.args())
 
-        # Create a new poll object
         poll = Poll(id=len(active_polls), name=title, room=room, item_entries=[])
 
-        # Add the poll to active polls
         active_polls.append(poll)
         logger.info(f"Poll created: {poll}")
 
-        # Send a confirmation message to the room
         await bot.api.send_markdown_message(room.room_id, f"## Poll Created: {title}")
 
     @staticmethod

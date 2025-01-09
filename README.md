@@ -29,7 +29,7 @@ A handy bot for creating and managing polls in Matrix rooms.
    cd PollMatrixBot
    ```
 
-2. (Optional) Build the Docker image:
+2. (Recommended) Build the Docker image:
 
 ```bash
 docker-compose build
@@ -40,7 +40,7 @@ docker-compose build
 docker-compose up -d
 ```
 
-### Running without Docker
+### Running without Docker (Not Recommended)
 
 1. Install required dependencies:
 
