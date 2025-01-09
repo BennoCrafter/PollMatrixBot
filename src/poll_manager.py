@@ -51,7 +51,7 @@ class PollManager:
         """Close and remove a poll."""
         poll = PollManager.get_active_poll(room_id)
         if poll is None:
-            logger.warn("No pol found to close")
+            logger.warn("No poll found to close")
             return
 
         markdown = poll.formatted_markdown(f"## {poll.name}")

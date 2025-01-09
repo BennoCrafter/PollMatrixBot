@@ -31,9 +31,12 @@ class Poll:
 
     def formatted_markdown(self, title) -> str:
         r = f"{title}\n"
-        for item_entry in self.item_entries:
+        for item_entry in self.sorted_entries():
             r += f"- {item_entry.get_total_count()}x {item_entry.name} ({item_entry.format_users()})\n"
         return r
+
+    def sorted_entries(self) -> list[ItemEntry]:
+        return sorted(self.item_entries, key=lambda x: x.name)
 
     def __str__(self) -> str:
         return f"Poll ID = {self.id}, Name = '{self.name}'"
