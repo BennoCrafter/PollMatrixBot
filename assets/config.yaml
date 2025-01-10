@@ -6,6 +6,7 @@ use_add_command: true
 status_title: "Shopping List"
 prefix: "!"
 default_quantity_number: 1
+date_format: "%d.%m.%Y %H:%M"
 
 # Reactions
 reaction:

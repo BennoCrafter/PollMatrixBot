@@ -1,3 +1,7 @@
-async def handle_error(bot, room, event, config) -> None:
+from src.bot_instance import get_bot
+import simplematrixbotlib as botlib
+
+
+async def handle_error(match: botlib.MessageMatch, config: dict) -> None:
     """Send an error reaction to the given event in the room."""
-    await bot.api.send_reaction(room.room_id, event, config["reaction"]["error"])
+    await get_bot().api.send_reaction(match.room.room_id, match.event, config["reaction"]["error"])

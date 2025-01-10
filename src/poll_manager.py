@@ -1,22 +1,50 @@
+from datetime import datetime
+import datetime
+from typing import Optional
+import pytz
+import asyncio
+
+from src.async_job_scheduler import AsyncJobScheduler
+from src.bot_instance import get_bot
 from src.poll import Poll
-import logging
+from src.utils.logging_config import setup_logger
 from src.utils.get_quantity_number import get_quantity_number
 from src.utils.handle_error import handle_error
 import simplematrixbotlib as botlib
 from nio.rooms import MatrixRoom
 from nio.events.room_events import RoomMessageText
+from src.utils.load_config import load_config
+from src.utils.call_at import call_at
 
+from src.utils.singleton import singleton
 
 # Setup logger
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
 
 active_polls = []
 
+@singleton
 class PollManager:
-    """Centralized manager for handling polls."""
+    def __init__(self):
+        logger.info("Initializing PollManager")
+        self.bot = get_bot()
+        self.scheduler = AsyncJobScheduler()
+        # todo: load config
+        self.config = load_config("assets/config.yaml")
 
-    @staticmethod
-    async def create_poll(bot: botlib.Bot, room: MatrixRoom, match: botlib.MessageMatch, config: dict):
+    def schedule_close(self, poll: Poll):
+        async def close_wrapper():
+            await self.close_poll(poll)
+
+        self.scheduler.add_job(job_id=poll.name, run_at=poll.close_date, function=close_wrapper)
+        logger.info(f"Scheduled poll '{poll.name}' to close at {poll.close_date}")
+
+    async def close_poll(self, poll: Poll):
+        await poll.close_poll()
+        self.scheduler.remove_job(poll.name)
+        active_polls.remove(poll)
+
+    async def create_poll(self, match: botlib.MessageMatch):
         """
         Creates a poll based on the provided arguments.
 
@@ -26,57 +54,72 @@ class PollManager:
             bot (botlib.Bot): The bot instance.
             config (dict): Bot configuration dictionary.
         """
+        close_date: datetime.datetime | None = None
+
         # Ensure the message contains arguments
         if not match.args():
-            await handle_error(bot, room, match.event, config)
+            await handle_error(match, self.config)
             return
 
         # Create a poll title from the message arguments
-        title = ' '.join(match.args())
+        options: list[str] = ' '.join(match.args()).strip().split(",")
 
-        poll = Poll(id=len(active_polls), name=title, room=room, item_entries=[])
+        if len(options) < 1:
+            logger.warn("Poll needs at least one option (title)")
+            await handle_error(match, self.config)
+            return
+
+        title = options[0]
+
+        if len(options) > 1:
+            try:
+                close_date = datetime.datetime.strptime(options[1].strip(), self.config.get("date_format", "%H:%M"))
+            except ValueError:
+                logger.warn(f"Could not parse date: {options[1].strip()}")
+                await handle_error(match, self.config)
+                return
+
+        if close_date is None:
+            # if close date is None, close date is set to eob
+            close_date = datetime.datetime.now().replace(hour=18, minute=0, second=0, microsecond=0)
+
+        # todo make config
+        # Convert to UTC
+        local_tz = pytz.timezone("Europe/Berlin")
+        close_date = local_tz.localize(close_date)
+        logger.info(close_date)
+
+
+        poll = Poll(id=len(active_polls), name=title, close_date=close_date, room=match.room, item_entries=[])
 
         active_polls.append(poll)
         logger.info(f"Poll created: {poll}")
 
-        await bot.api.send_markdown_message(room.room_id, f"## Poll Created: {title}")
+        await self.bot.api.send_markdown_message(match.room.room_id, f"## Poll Created: {title} (Ends at {close_date.strftime('%H:%M')})")
+        self.schedule_close(poll)
 
     @staticmethod
-    def get_active_poll(room_id: str) -> Poll | None:
+    def get_active_poll(room_id: str) -> Optional[Poll]:
         """Retrieve the active poll in the given room, if any."""
         return next((poll for poll in active_polls if poll.room.room_id == room_id), None)
 
-    @staticmethod
-    async def close_poll(bot: botlib.Bot, room_id: str) -> None:
-        """Close and remove a poll."""
-        poll = PollManager.get_active_poll(room_id)
-        if poll is None:
-            logger.warn("No poll found to close")
-            return
-
-        markdown = poll.formatted_markdown(f"## {poll.name}")
-        await bot.api.send_markdown_message(room_id, markdown)
-        active_polls.remove(poll)
-        logger.info(f"Poll closed: {poll}")
-
-    @staticmethod
-    async def add_item(bot: botlib.Bot, room: MatrixRoom, message: RoomMessageText, match: botlib.MessageMatch, config: dict):
+    async def add_item(self, match: botlib.MessageMatch):
         """Add an item to an active poll."""
-        poll = PollManager.get_active_poll(room.room_id)
+        poll = self.get_active_poll(match.room.room_id)
         if not poll:
             return
 
-        body_msg = ' '.join(match.args()).strip() if config["use_add_command"] else message.body.strip()
+        body_msg = ' '.join(match.args()).strip() if self.config["use_add_command"] else match.event.body.strip()
         if not body_msg:
             return
 
         quantity_num, item_name = get_quantity_number(body_msg)
-        count = quantity_num or config["default_quantity_number"]
+        count = quantity_num or self.config["default_quantity_number"]
         item_name = item_name or body_msg
-        sender_name = await PollManager.get_sender_name(bot, message.sender)
+        sender_name = await self.get_sender_name(self.bot, match.event.sender)
 
         poll.add_response(item_name, sender_name, count)
-        await bot.api.send_reaction(room.room_id, message, config["reaction"]["success"])
+        await self.bot.api.send_reaction(match.room.room_id, match.event, self.config["reaction"]["success"])
         logger.info(f"Added item '{item_name}' with quantity {quantity_num}")
 
     @staticmethod
@@ -85,40 +128,46 @@ class PollManager:
         displayname_response = await bot.async_client.get_displayname(sender)
         return displayname_response.displayname # type: ignore
 
-    @staticmethod
-    async def list_items(bot: botlib.Bot, room: MatrixRoom, match: botlib.MessageMatch):
+    async def list_items(self, match: botlib.MessageMatch):
         """List all items in an active poll."""
-        poll = PollManager.get_active_poll(room.room_id)
+        poll = self.get_active_poll(match.room.room_id)
         if not poll:
             return
 
         markdown = poll.formatted_markdown(f"## {poll.name}")
-        await bot.api.send_markdown_message(room.room_id, markdown)
+        await self.bot.api.send_markdown_message(match.room.room_id, markdown)
         logger.info("Listed poll items")
 
-    @staticmethod
-    async def remove_item(bot: botlib.Bot, room: MatrixRoom, message: RoomMessageText, match: botlib.MessageMatch, config: dict):
+    async def remove_item(self, match: botlib.MessageMatch):
         """Remove an item from an active poll."""
-        poll = PollManager.get_active_poll(room.room_id)
+        poll = self.get_active_poll(match.room.room_id)
         if not poll or not match.args():
-            await handle_error(bot, room, message, config)
+            await handle_error(match, self.config)
             return
 
         body_msg = ' '.join(match.args()).strip()
         quantity_num, item_name = get_quantity_number(body_msg)
-        count = quantity_num or config["default_quantity_number"]
+        count = quantity_num or self.config["default_quantity_number"]
         item_name = item_name or body_msg
 
         item = poll.get_item(item_name)
-        msg_sender = await PollManager.get_sender_name(bot, message.sender)
+        msg_sender = await self.get_sender_name(self.bot, match.event.sender)
 
         if not item or msg_sender not in item.user_count or count > item.user_count[msg_sender]:
-            await handle_error(bot, room, message, config)
+            await handle_error(match, self.config)
             return
 
         item.decrease(msg_sender, count)
         if not item.user_count:
             poll.remove_item(item)
 
-        await bot.api.send_reaction(room.room_id, message, config["reaction"]["removed"])
+        await self.bot.api.send_reaction(match.room.room_id, match.event, self.config["reaction"]["removed"])
         logger.info(f"Removed item '{item_name}' with quantity {quantity_num}")
+
+    async def handle_close_poll(self, room: MatrixRoom) -> bool:
+        poll = self.get_active_poll(room.room_id)
+        if poll is None:
+            return False
+
+        await self.close_poll(poll)
+        return True

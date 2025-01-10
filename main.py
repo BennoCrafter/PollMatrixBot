@@ -1,9 +1,12 @@
+from src.bot_instance import get_bot, initialize_bot
 from pathlib import Path
 import os
 from dotenv import load_dotenv
 from nio.events.room_events import ReactionEvent, RoomMessageText
 from nio.rooms import MatrixRoom
 import simplematrixbotlib as botlib
+import datetime
+import asyncio
 
 from src.commands.add_command import AddCommand
 from src.commands.command import Command
@@ -21,7 +24,7 @@ from src.utils.once_decorator import once
 from src.poll_manager import PollManager
 
 # Setup logger
-logger = setup_logger()
+logger = setup_logger(__name__)
 
 # Load environment variables
 load_dotenv()
@@ -32,16 +35,11 @@ session_file_path = Path(config["session_file"])
 if session_file_path.exists() and config.get("delete_session_file_on_start"):
     session_file_path.unlink()
 
-# Setup bot credentials
-creds = botlib.Creds(homeserver=os.getenv('HOMESERVER'),
-                     username=os.getenv('USERNAME'),
-                     password=os.getenv('PASSWORD'))
-bot = botlib.Bot(creds)
-
-# Load help message
-
-active_polls = []
 PREFIX = config["prefix"]
+
+# init bot instance
+initialize_bot()
+bot = get_bot()
 
 commands: list[Command] = [
     HelpCommand(config["commands"]["help_command"]),
@@ -52,16 +50,7 @@ commands: list[Command] = [
     ListItemsCommand(config["commands"]["list_items_command"])
 ]
 
-def load_configuration():
-    """Load environment variables and configuration file."""
-    load_dotenv()
-    return load_config("assets/config.yaml")
-
-def get_active_poll(room_id: str) -> Poll | None:
-    """Retrieve the active poll in the given room, if any."""
-    return next((poll for poll in active_polls if poll.room.room_id == room_id), None)
-
-async def handle_message(room: MatrixRoom, message: RoomMessageText, match: botlib.MessageMatch, config):
+async def handle_message(match: botlib.MessageMatch, config):
     """Process incoming messages and execute the corresponding command."""
 
     to_exec_command: Command | None = None
@@ -72,18 +61,17 @@ async def handle_message(room: MatrixRoom, message: RoomMessageText, match: botl
 
     if to_exec_command is None:
         if not config["use_add_command"]:
-            await PollManager.add_item(bot, room, message, match, config)
+            await poll_manager.add_item(match)
             return
         return
-
-    await to_exec_command.execute(bot, message.body, room=room, config=config, match=match, message=message)
+    await to_exec_command.execute(message=match)
 
 
 @bot.listener.on_message_event # type: ignore
 async def on_message(room: MatrixRoom, message: RoomMessageText) -> None:
     match = botlib.MessageMatch(room, message, bot, PREFIX)
     if match.is_not_from_this_bot():
-        await handle_message(room, message, match, config)
+        await handle_message(match, config)
 
 @bot.listener.on_reaction_event # type: ignore
 async def on_reaction(room: MatrixRoom, reaction: ReactionEvent, k: str) -> None:
@@ -95,6 +83,8 @@ async def on_reaction(room: MatrixRoom, reaction: ReactionEvent, k: str) -> None
 async def on_startup(w) -> None:
     logger.info("Bot started successfully.")
 
+
 if __name__ == "__main__":
+    poll_manager = PollManager()
     logger.info("Starting bot...")
     bot.run()

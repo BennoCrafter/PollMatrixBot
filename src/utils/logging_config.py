@@ -2,8 +2,8 @@
 import logging
 
 
-def setup_logger():
-    logger = logging.getLogger("lunchy_bot")
+def setup_logger(name: str):
+    logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
 
     file_handler = logging.FileHandler("lunchy_bot.log")

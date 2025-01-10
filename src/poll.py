@@ -1,14 +1,31 @@
 from src.item import ItemEntry
 from src.utils.insert_invisible_char import insert_invisible_char
+import datetime
+from nio import MatrixRoom
+from src.bot_instance import get_bot
+from src.utils.logging_config import setup_logger
+
+from enum import Enum
+
+class PollStatus(Enum):
+    OPEN = 'open'
+    CLOSED = 'closed'
+
+logger = setup_logger(__name__)
 
 
 class Poll:
-    def __init__(self, id: int, name: str, room,
+    def __init__(self, id: int, close_date: datetime.datetime, name: str, room: MatrixRoom,
                  item_entries: list[ItemEntry]) -> None:
         self.id: int = id
         self.name: str = name
+        self.close_date = close_date
         self.room = room
         self.item_entries: list[ItemEntry] = item_entries
+
+        self.status: PollStatus = PollStatus.OPEN
+        self.bot = get_bot()
+
 
     def add_response(self, item_name: str, user: str, count: int) -> None:
         item_entry = self.get_item(item_name)
@@ -16,6 +33,12 @@ class Poll:
             item_entry.add(user, count)
         else:
             self.item_entries.append(ItemEntry(item_name, {user: count}))
+
+    async def close_poll(self) -> None:
+        self.status = PollStatus.CLOSED
+        await self.bot.api.send_markdown_message(self.room.room_id, self.formatted_markdown(f"## {self.name}"))
+
+        logger.info(f"Poll closed: {self}")
 
     def get_item(self, item_name: str) -> ItemEntry | None:
         for item_entry in self.item_entries:
@@ -39,4 +62,4 @@ class Poll:
         return sorted(self.item_entries, key=lambda x: x.name)
 
     def __str__(self) -> str:
-        return f"Poll ID = {self.id}, Name = '{self.name}'"
+        return f"Poll ID = {self.id}, Name = '{self.name}', Close Date = {self.close_date}"

@@ -1,3 +1,4 @@
+from nio.events.room_events import RoomMessageText
 
 from src.commands.command import Command
 import simplematrixbotlib as botlib
@@ -10,11 +11,5 @@ class CreatePollCommand(Command):
     def __init__(self, trigger_names: list[str]) -> None:
         super().__init__(trigger_names)
 
-    async def execute(self, bot: botlib.Bot, msg_content: str, **kwargs) -> None:
-        room = kwargs.get("room")
-        match = kwargs.get("match")
-        config = kwargs.get("config")
-        if room is None or match is None or config is None:
-            return
-
-        await PollManager.create_poll(bot, room, match, config)
+    async def execute(self, message: botlib.MessageMatch, **kwargs) -> None:
+        await self.poll_manager.create_poll(message)
