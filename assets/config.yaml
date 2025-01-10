@@ -14,11 +14,12 @@ reaction:
   success: "✅"
   removed: "🗑"
 
-# commands
+# commands (note: key of trigger names need to be the same as the python command name)
 commands:
   help_command: ["help", "h"]
   create_poll_command: ["create", "poll", "lunchy", "c"]
   remove_item_command: ["remove", "r"]
   list_items_command: ["list", "ls", "status"]
-  close_poll_command: ["close", "end", "finish"]
+  close_poll_command: ["close", "finish"]
   add_item_command: ["add", "a"]
+  end_command: ["end"]

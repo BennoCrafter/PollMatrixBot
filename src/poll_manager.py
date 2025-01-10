@@ -82,6 +82,9 @@ class PollManager:
         if close_date is None:
             # if close date is None, close date is set to eob
             close_date = datetime.datetime.now().replace(hour=18, minute=0, second=0, microsecond=0)
+            if datetime.datetime.now().hour >= 18:
+                close_date = close_date + datetime.timedelta(days=1)
+
 
         # todo make config
         # Convert to UTC
@@ -102,6 +105,33 @@ class PollManager:
     def get_active_poll(room_id: str) -> Optional[Poll]:
         """Retrieve the active poll in the given room, if any."""
         return next((poll for poll in active_polls if poll.room.room_id == room_id), None)
+
+    async def update_auto_poll_closing(self, match: botlib.MessageMatch):
+        poll = self.get_active_poll(match.room.room_id)
+        if not poll:
+            await handle_error(match, self.config)
+            return
+
+        options: list[str] = ' '.join(match.args()).strip().split(",")
+        if len(options) < 1:
+            return
+
+        close_date: datetime.datetime | None = None
+        try:
+            close_date = datetime.datetime.strptime(options[0].strip(), self.config.get("date_format", "%H:%M"))
+        except ValueError:
+            logger.warn(f"Could not parse date: {options[0].strip()}")
+            await handle_error(match, self.config)
+            return
+
+
+        # todo make config
+        # Convert to UTC
+        local_tz = pytz.timezone("Europe/Berlin")
+        close_date = local_tz.localize(close_date)
+
+        self.scheduler.update_job_time(poll.name, close_date)
+        await self.bot.api.send_reaction(match.room.room_id, match.event, self.config["reaction"]["success"])
 
     async def add_item(self, match: botlib.MessageMatch):
         """Add an item to an active poll."""

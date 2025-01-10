@@ -6,9 +6,9 @@ from src.poll_manager import PollManager
 from nio.events.room_events import RoomMessageText
 
 
-class AddCommand(Command):
+class EndCommand(Command):
     def __init__(self, trigger_names: list[str]) -> None:
         super().__init__(trigger_names)
 
     async def execute(self, message: botlib.MessageMatch, **kwargs) -> None:
-        await self.poll_manager.add_item(message)
+        await self.poll_manager.update_auto_poll_closing(message)

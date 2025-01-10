@@ -4,6 +4,7 @@ from src.utils.load_config import load_config
 from src.bot_instance import get_bot
 from src.poll_manager import PollManager
 from nio.events.room_events import RoomMessageText
+from src.utils.logging_config import setup_logger
 
 
 class Command(ABC):
@@ -14,6 +15,7 @@ class Command(ABC):
         self.config = load_config("assets/config.yaml")
         self.bot = get_bot()
         self.poll_manager = PollManager()
+        self.logger = setup_logger(__name__)
 
 
     def is_valid(self, match: botlib.MessageMatch) -> bool:

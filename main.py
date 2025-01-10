@@ -6,15 +6,9 @@ from nio.events.room_events import ReactionEvent, RoomMessageText
 from nio.rooms import MatrixRoom
 import simplematrixbotlib as botlib
 import datetime
-import asyncio
+from src.command_system import register_command_from_path
 
-from src.commands.add_command import AddCommand
 from src.commands.command import Command
-from src.commands.help_command import HelpCommand
-from src.commands.create_poll_command import CreatePollCommand
-from src.commands.close_poll_command import ClosePollCommand
-from src.commands.list_items import ListItemsCommand
-from src.commands.remove_item_command import RemoveItemCommand
 from src.poll import Poll
 from src.utils.load_config import load_config
 from src.utils.get_quantity_number import get_quantity_number
@@ -40,15 +34,6 @@ PREFIX = config["prefix"]
 # init bot instance
 initialize_bot()
 bot = get_bot()
-
-commands: list[Command] = [
-    HelpCommand(config["commands"]["help_command"]),
-    CreatePollCommand(config["commands"]["create_poll_command"]),
-    AddCommand(config["commands"]["add_item_command"]),
-    RemoveItemCommand(config["commands"]["remove_item_command"]),
-    ClosePollCommand(config["commands"]["close_poll_command"]),
-    ListItemsCommand(config["commands"]["list_items_command"])
-]
 
 async def handle_message(match: botlib.MessageMatch, config):
     """Process incoming messages and execute the corresponding command."""
@@ -83,8 +68,38 @@ async def on_reaction(room: MatrixRoom, reaction: ReactionEvent, k: str) -> None
 async def on_startup(w) -> None:
     logger.info("Bot started successfully.")
 
+def get_all_extensions(for_path: Path) -> list[Path]:
+    """Get all extensions for a folder path"""
+    paths: list[Path] = []
+
+    for path in for_path.iterdir():
+        if path.is_dir() and path.stem not in ["__pycache__"]:
+            paths += get_all_extensions(path)
+            continue
+
+        if path.suffix != ".py" or path.name.startswith("_") or path.stem in ["command"]:
+            continue
+
+        paths.append(path)
+    return paths
+
+def load_commands(for_path: Path) -> list[Command]:
+    """Load all commands from a folder path"""
+    commands: list[Command] = []
+
+    for path in get_all_extensions(for_path):
+        tn: list[str] = config["commands"].get(path.stem, [])
+
+        c = register_command_from_path(path, tn)
+        if c is not None:
+            commands.append(c)
+
+    return commands
+
 
 if __name__ == "__main__":
     poll_manager = PollManager()
+    commands: list[Command] = load_commands(Path("src/commands"))
+
     logger.info("Starting bot...")
     bot.run()

@@ -3,9 +3,10 @@ import threading
 from datetime import datetime
 from typing import Callable, Dict, Any
 import pytz
-import logging
+from src.utils.logging_config import setup_logger
 
-logger = logging.getLogger(__name__)
+
+logger = setup_logger(__name__)
 
 
 class AsyncJobScheduler:
