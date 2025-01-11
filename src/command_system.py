@@ -6,6 +6,8 @@ from src.utils.logging_config import setup_logger
 from src.commands.command import Command
 
 
+command_descriptions: dict[str, str] = {}
+
 logger = setup_logger(__name__)
 
 def register_command_from_path(path: Path, trigger_names: list[str]) -> Optional[Command]:
@@ -28,7 +30,6 @@ def register_command_from_path(path: Path, trigger_names: list[str]) -> Optional
             continue
 
         if issubclass(obj, Command) and obj.__bases__[0] == Command:
-            logger.info(f"Registered command {name}")
-            logger.info(f"Command description: {obj.__doc__}")
+            command_descriptions[name] = obj.__doc__ or "Not provided"
             command = obj(trigger_names=trigger_names)
             return command

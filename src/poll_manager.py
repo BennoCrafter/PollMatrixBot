@@ -9,12 +9,11 @@ from src.bot_instance import get_bot
 from src.poll import Poll
 from src.utils.logging_config import setup_logger
 from src.utils.get_quantity_number import get_quantity_number
-from src.utils.handle_error import handle_error
 import simplematrixbotlib as botlib
 from nio.rooms import MatrixRoom
 from nio.events.room_events import RoomMessageText
 from src.utils.load_config import load_config
-from src.utils.call_at import call_at
+from src.message_reactor import MessageReactor
 
 from src.utils.singleton import singleton
 
@@ -31,6 +30,8 @@ class PollManager:
         self.scheduler = AsyncJobScheduler()
         # todo: load config
         self.config = load_config("assets/config.yaml")
+
+        self.message_reactor = MessageReactor(self.config)
 
     def schedule_close(self, poll: Poll):
         async def close_wrapper():
@@ -58,7 +59,7 @@ class PollManager:
 
         # Ensure the message contains arguments
         if not match.args():
-            await handle_error(match, self.config)
+            await self.message_reactor.error(match.room.room_id, match.event)
             return
 
         # Create a poll title from the message arguments
@@ -66,7 +67,7 @@ class PollManager:
 
         if len(options) < 1:
             logger.warn("Poll needs at least one option (title)")
-            await handle_error(match, self.config)
+            await self.message_reactor.error(match.room.room_id, match.event)
             return
 
         title = options[0]
@@ -76,7 +77,7 @@ class PollManager:
                 close_date = datetime.datetime.strptime(options[1].strip(), self.config.get("date_format", "%H:%M"))
             except ValueError:
                 logger.warn(f"Could not parse date: {options[1].strip()}")
-                await handle_error(match, self.config)
+                await self.message_reactor.error(match.room.room_id, match.event)
                 return
 
         if close_date is None:
@@ -97,7 +98,6 @@ class PollManager:
 
         active_polls.append(poll)
         logger.info(f"Poll created: {poll}")
-        await self.bot.api.send_markdown_message(match.room.room_id, f"## Poll Created: {title} (Ends at {close_date.strftime('%H:%M')})")
         await poll.list_items(match.room.room_id)
         self.schedule_close(poll)
 
@@ -109,7 +109,7 @@ class PollManager:
     async def update_auto_poll_closing(self, match: botlib.MessageMatch):
         poll = self.get_active_poll(match.room.room_id)
         if not poll:
-            await handle_error(match, self.config)
+            await self.message_reactor.error(match.room.room_id, match.event)
             return
 
         options: list[str] = ' '.join(match.args()).strip().split(",")
@@ -121,7 +121,7 @@ class PollManager:
             close_date = datetime.datetime.strptime(options[0].strip(), self.config.get("date_format", "%H:%M"))
         except ValueError:
             logger.warn(f"Could not parse date: {options[0].strip()}")
-            await handle_error(match, self.config)
+            await self.message_reactor.error(match.room.room_id, match.event)
             return
 
 
@@ -131,7 +131,9 @@ class PollManager:
         close_date = local_tz.localize(close_date)
 
         self.scheduler.update_job_time(poll.name, close_date)
-        await self.bot.api.send_reaction(match.room.room_id, match.event, self.config["reaction"]["success"])
+        await self.message_reactor.success(match.room.room_id, match.event)
+        poll.close_date = close_date
+        await poll.update_status_messages()
 
     async def process_message_items(self, body_msg: str) -> list[tuple[int, str]]:
         """Process message text into list of quantity/item pairs."""
@@ -158,13 +160,13 @@ class PollManager:
             await poll.add_response(item_name, match.event.sender, count)
             logger.info(f"Added item '{item_name}' with quantity {count}")
 
-        await self.bot.api.send_reaction(match.room.room_id, match.event, self.config["reaction"]["success"])
+        await self.message_reactor.success(match.room.room_id, match.event)
 
     async def list_items(self, match: botlib.MessageMatch):
         """List all items in an active poll."""
         poll = self.get_active_poll(match.room.room_id)
         if not poll:
-            await handle_error(match, self.config)
+            await self.message_reactor.error(match.room.room_id, match.event)
             return
 
         await poll.list_items(match.room.room_id)
@@ -173,7 +175,7 @@ class PollManager:
         """Remove an item from an active poll."""
         poll = self.get_active_poll(match.room.room_id)
         if not poll or not match.args():
-            await handle_error(match, self.config)
+            await self.message_reactor.error(match.room.room_id, match.event)
             return
 
         body_msg = ' '.join(match.args()).strip()
@@ -185,7 +187,7 @@ class PollManager:
 
             resp = await poll.remove_response(item_name, msg_sender, count)
             if not resp:
-                await handle_error(match, self.config)
+                await self.message_reactor.error(match.room.room_id, match.event)
                 return
 
             await self.bot.api.send_reaction(match.room.room_id, match.event, self.config["reaction"]["removed"])

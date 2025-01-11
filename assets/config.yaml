@@ -9,10 +9,18 @@ default_quantity_number: 1
 date_format: "%d.%m.%Y %H:%M"
 
 # Reactions
-reaction:
-  error: "❌"
-  success: "✅"
-  removed: "🗑"
+reactions:
+  enabled: true
+  types:
+    error:
+      enabled: true
+      emoji: "❌"
+    success:
+      enabled: false
+      emoji: "✅"
+    removed:
+      enabled: false
+      emoji: "🗑"
 
 # commands (note: key of trigger names need to be the same as the python command name)
 commands:

@@ -12,7 +12,6 @@ import markdown
 from nio.events.room_events import RoomMessageText
 from nio.rooms import MatrixRoom
 from typing import Optional
-from src.utils.handle_error import handle_error
 
 from enum import Enum
 
@@ -63,7 +62,7 @@ class Poll:
     async def close_poll(self) -> None:
         self.status = PollStatus.CLOSED
         await self.bot.api.send_markdown_message(self.room.room_id, await self.formatted_markdown(f"## {self.name}"))
-
+        await self.update_status_messages()
         logger.info(f"Poll closed: {self}")
 
     async def list_items(self, room_id: str, title: Optional[str] = None) -> None:
@@ -124,7 +123,10 @@ class Poll:
         return item_name1.lower() == item_name2.lower()
 
     async def formatted_markdown(self, title) -> str:
-        r = f"{title}\n"
+        d = f"until {self.close_date.strftime('%H:%M') if self.close_date.date() == datetime.datetime.now().date() else self.close_date.strftime('%d.%m.%Y %H:%M')}"
+        status = "(closed)" if self.status == PollStatus.CLOSED else None
+        r = f"## {self.name} {d if status is None else status}\n"
+
         for item_entry in self.sorted_entries():
             r += f"- {item_entry.get_total_count()}x {item_entry.name} ({await item_entry.format_users()})\n"
         return r

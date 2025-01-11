@@ -69,7 +69,7 @@ async def on_reaction(room: MatrixRoom, reaction: ReactionEvent, k: str) -> None
 @once
 async def on_startup(w) -> None:
     logger.info("Bot started successfully.")
-    await send_private_dm("@bennowo:matrix.org", "Hello, I'm a bot. I can do some stuff. Please check my commands.")
+    # await send_private_dm("@bennowo:matrix.org", "Hello, I'm a bot. I can do some stuff.")
 
 def get_all_extensions(for_path: Path) -> list[Path]:
     """Get all extensions for a folder path"""
@@ -96,6 +96,8 @@ def load_commands(for_path: Path) -> list[Command]:
         c = register_command_from_path(path, tn)
         if c is not None:
             commands.append(c)
+    for c in commands:
+        c.load()
 
     return commands
 

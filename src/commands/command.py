@@ -22,6 +22,9 @@ class Command(ABC):
         command = match.event.body[len(match._prefix):].split()[0]
         return command in self.trigger_names
 
+    def load(self) -> None:
+        ...
+
     @abstractmethod
     async def execute(self, message: botlib.MessageMatch, **kwargs) -> None:
         raise NotImplementedError("execute must be implemented by subclasses")
