@@ -12,5 +12,4 @@ class AddCommand(Command):
         super().__init__(trigger_names)
 
     async def execute(self, message: botlib.MessageMatch, **kwargs) -> None:
-        self.logger.info(f"Adding poll to room {message.room.room_id}")
         await self.poll_manager.add_item(message)

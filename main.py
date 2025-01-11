@@ -1,8 +1,10 @@
+from typing import Optional
 from src.bot_instance import get_bot, initialize_bot
 from pathlib import Path
 import os
 from dotenv import load_dotenv
 from nio.events.room_events import ReactionEvent, RoomMessageText
+from nio.responses import DirectRoomsErrorResponse, RoomCreateError
 from nio.rooms import MatrixRoom
 import simplematrixbotlib as botlib
 import datetime
@@ -67,6 +69,7 @@ async def on_reaction(room: MatrixRoom, reaction: ReactionEvent, k: str) -> None
 @once
 async def on_startup(w) -> None:
     logger.info("Bot started successfully.")
+    await send_private_dm("@bennowo:matrix.org", "Hello, I'm a bot. I can do some stuff. Please check my commands.")
 
 def get_all_extensions(for_path: Path) -> list[Path]:
     """Get all extensions for a folder path"""
@@ -95,6 +98,39 @@ def load_commands(for_path: Path) -> list[Command]:
             commands.append(c)
 
     return commands
+
+async def create_direct_room(user_id: str) -> Optional[str]:
+    resp = await bot.async_client.room_create(
+        invite=[user_id],
+        is_direct=True,
+    )
+    if isinstance(resp, RoomCreateError):
+        logger.error(f"Could not create DM with {user_id}: {resp.message}")
+        return
+
+    return resp.room_id
+
+
+async def send_private_dm(user_id: str, message: str) -> bool:
+    resp = await bot.async_client.list_direct_rooms()
+    if isinstance(resp, DirectRoomsErrorResponse):
+        logger.error(f"Could not list direct rooms: {resp.message}")
+        return False
+
+
+    if user_id not in resp.rooms:
+        room_id = await create_direct_room(user_id)
+        if not room_id:
+            return False
+    else:
+        room_id = resp.rooms[user_id][0]
+
+        await bot.api.async_client.room_leave(room_id)
+    logger.info(resp.rooms)
+
+
+    await bot.api.send_text_message(room_id, message)
+    return True
 
 
 if __name__ == "__main__":

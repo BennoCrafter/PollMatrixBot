@@ -146,26 +146,18 @@ class PollManager:
         quantity_num, item_name = get_quantity_number(body_msg)
         count = quantity_num or self.config["default_quantity_number"]
         item_name = item_name or body_msg
-        sender_name = await self.get_sender_name(self.bot, match.event.sender)
-
-        poll.add_response(item_name, sender_name, count)
+        await poll.add_response(item_name, match.event.sender, count)
         await self.bot.api.send_reaction(match.room.room_id, match.event, self.config["reaction"]["success"])
         logger.info(f"Added item '{item_name}' with quantity {quantity_num}")
-
-    @staticmethod
-    async def get_sender_name(bot: botlib.Bot, sender: str) -> str:
-        """Retrieve the display name of the message sender."""
-        displayname_response = await bot.async_client.get_displayname(sender)
-        return displayname_response.displayname # type: ignore
 
     async def list_items(self, match: botlib.MessageMatch):
         """List all items in an active poll."""
         poll = self.get_active_poll(match.room.room_id)
         if not poll:
+            await handle_error(match, self.config)
             return
 
-        markdown = poll.formatted_markdown(f"## {poll.name}")
-        await self.bot.api.send_markdown_message(match.room.room_id, markdown)
+        await poll.list_items(match)
         logger.info("Listed poll items")
 
     async def remove_item(self, match: botlib.MessageMatch):
@@ -181,7 +173,7 @@ class PollManager:
         item_name = item_name or body_msg
 
         item = poll.get_item(item_name)
-        msg_sender = await self.get_sender_name(self.bot, match.event.sender)
+        msg_sender = match.event.sender
 
         if not item or msg_sender not in item.user_count or count > item.user_count[msg_sender]:
             await handle_error(match, self.config)
@@ -189,7 +181,7 @@ class PollManager:
 
         item.decrease(msg_sender, count)
         if not item.user_count:
-            poll.remove_item(item)
+            await poll.remove_item(item)
 
         await self.bot.api.send_reaction(match.room.room_id, match.event, self.config["reaction"]["removed"])
         logger.info(f"Removed item '{item_name}' with quantity {quantity_num}")
