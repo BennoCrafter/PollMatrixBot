@@ -7,6 +7,10 @@ from src.poll_manager import PollManager
 
 
 class ClosePollCommand(Command):
+    """
+    **Closing a Poll**
+    **Close a Poll**: Use the `!close` command to close a poll.
+    """
     def __init__(self, trigger_names: list[str]) -> None:
         super().__init__(trigger_names)
 

@@ -29,5 +29,6 @@ def register_command_from_path(path: Path, trigger_names: list[str]) -> Optional
 
         if issubclass(obj, Command) and obj.__bases__[0] == Command:
             logger.info(f"Registered command {name}")
+            logger.info(f"Command description: {obj.__doc__}")
             command = obj(trigger_names=trigger_names)
             return command

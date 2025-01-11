@@ -8,6 +8,10 @@ from nio.events.room_events import RoomMessageText
 
 
 class AddCommand(Command):
+    """
+    Adds an item to the poll
+    **Add Item**: Use the `!lunchy <quantity>x <item>` command to add an item to the poll.
+    """
     def __init__(self, trigger_names: list[str]) -> None:
         super().__init__(trigger_names)
 

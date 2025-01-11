@@ -8,6 +8,10 @@ from src.poll_manager import PollManager
 
 
 class RemoveItemCommand(Command):
+    """
+    **Removing Poll Items**
+    **Remove Item**: Use the `!remove <quantity>x <item>` command to remove an item from the poll.
+    """
     def __init__(self, trigger_names: list[str]) -> None:
         super().__init__(trigger_names)
 

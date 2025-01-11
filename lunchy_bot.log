@@ -1,0 +1,4 @@
+2025-01-11 10:16:04,135 - src.command_system - INFO - Registered command AddCommand
+2025-01-11 10:16:04,135 - src.command_system - INFO - Command description: 
+Adds an item to the poll
+

@@ -23,3 +23,4 @@ commands:
   close_poll_command: ["close", "finish"]
   add_item_command: ["add", "a"]
   end_command: ["end"]
+  release_notes_command: ["release", "releasenotes"]

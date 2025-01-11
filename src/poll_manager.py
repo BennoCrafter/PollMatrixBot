@@ -133,6 +133,16 @@ class PollManager:
         self.scheduler.update_job_time(poll.name, close_date)
         await self.bot.api.send_reaction(match.room.room_id, match.event, self.config["reaction"]["success"])
 
+    async def process_message_items(self, body_msg: str) -> list[tuple[int, str]]:
+        """Process message text into list of quantity/item pairs."""
+        items = []
+        for item in [w.strip() for w in body_msg.split(",")]:
+            quantity_num, item_name = get_quantity_number(item)
+            count = quantity_num or self.config["default_quantity_number"]
+            name = item_name or item
+            items.append((count, name))
+        return items
+
     async def add_item(self, match: botlib.MessageMatch):
         """Add an item to an active poll."""
         poll = self.get_active_poll(match.room.room_id)
@@ -143,15 +153,10 @@ class PollManager:
         if not body_msg:
             return
 
-        unpar_items: list[str] = [w.strip() for w in body_msg.split(",")]
-
-        for un_item in unpar_items:
-            quantity_num, item_name = get_quantity_number(un_item)
-            count = quantity_num or self.config["default_quantity_number"]
-            item_name = item_name or un_item
-
+        items = await self.process_message_items(body_msg)
+        for count, item_name in items:
             await poll.add_response(item_name, match.event.sender, count)
-            logger.info(f"Added item '{item_name}' with quantity {quantity_num}")
+            logger.info(f"Added item '{item_name}' with quantity {count}")
 
         await self.bot.api.send_reaction(match.room.room_id, match.event, self.config["reaction"]["success"])
 
@@ -172,23 +177,19 @@ class PollManager:
             return
 
         body_msg = ' '.join(match.args()).strip()
-        quantity_num, item_name = get_quantity_number(body_msg)
-        count = quantity_num or self.config["default_quantity_number"]
-        item_name = item_name or body_msg
+        items = await self.process_message_items(body_msg)
 
-        item = poll.get_item(item_name)
-        msg_sender = match.event.sender
+        for count, item_name in items:
+            item = poll.get_item(item_name)
+            msg_sender = match.event.sender
 
-        if not item or msg_sender not in item.user_count or count > item.user_count[msg_sender]:
-            await handle_error(match, self.config)
-            return
+            resp = await poll.remove_response(item_name, msg_sender, count)
+            if not resp:
+                await handle_error(match, self.config)
+                return
 
-        item.decrease(msg_sender, count)
-        if not item.user_count:
-            await poll.remove_item(item)
-
-        await self.bot.api.send_reaction(match.room.room_id, match.event, self.config["reaction"]["removed"])
-        logger.info(f"Removed item '{item_name}' with quantity {quantity_num}")
+            await self.bot.api.send_reaction(match.room.room_id, match.event, self.config["reaction"]["removed"])
+            logger.info(f"Removed item '{item_name}' with quantity {count}")
 
     async def handle_close_poll(self, room: MatrixRoom) -> bool:
         poll = self.get_active_poll(room.room_id)

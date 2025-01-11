@@ -7,6 +7,10 @@ from nio.events.room_events import RoomMessageText
 
 
 class EndCommand(Command):
+    """
+    **Ending a Poll**
+    **End a Poll**: Use the `!end dd.mm.yyyy hh:mm` command to configure the end date of a poll.
+    """
     def __init__(self, trigger_names: list[str]) -> None:
         super().__init__(trigger_names)
 

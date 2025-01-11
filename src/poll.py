@@ -12,6 +12,7 @@ import markdown
 from nio.events.room_events import RoomMessageText
 from nio.rooms import MatrixRoom
 from typing import Optional
+from src.utils.handle_error import handle_error
 
 from enum import Enum
 
@@ -44,6 +45,20 @@ class Poll:
             self.item_entries.append(ItemEntry(item_name, {user: count}))
 
         await self.update_status_messages()
+
+    async def remove_response(self, item_name: str, user: str, count: int) -> bool:
+        item_entry = self.get_item(item_name)
+        if item_entry is None or (user not in item_entry.user_count) or count > item_entry.user_count[user]:
+            return False
+        if item_entry:
+            item_entry.decrease(user, count)
+            if not item_entry.user_count:
+                await self.remove_item(item_entry)
+            await self.update_status_messages()
+            return True
+        else:
+            logger.warn(f"Could not find item '{item_name}' in poll '{self.name}'")
+            return False
 
     async def close_poll(self) -> None:
         self.status = PollStatus.CLOSED
