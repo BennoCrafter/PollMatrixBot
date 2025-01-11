@@ -143,12 +143,17 @@ class PollManager:
         if not body_msg:
             return
 
-        quantity_num, item_name = get_quantity_number(body_msg)
-        count = quantity_num or self.config["default_quantity_number"]
-        item_name = item_name or body_msg
-        await poll.add_response(item_name, match.event.sender, count)
+        unpar_items: list[str] = [w.strip() for w in body_msg.split(",")]
+
+        for un_item in unpar_items:
+            quantity_num, item_name = get_quantity_number(un_item)
+            count = quantity_num or self.config["default_quantity_number"]
+            item_name = item_name or un_item
+
+            await poll.add_response(item_name, match.event.sender, count)
+            logger.info(f"Added item '{item_name}' with quantity {quantity_num}")
+
         await self.bot.api.send_reaction(match.room.room_id, match.event, self.config["reaction"]["success"])
-        logger.info(f"Added item '{item_name}' with quantity {quantity_num}")
 
     async def list_items(self, match: botlib.MessageMatch):
         """List all items in an active poll."""
