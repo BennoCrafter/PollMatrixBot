@@ -11,6 +11,7 @@ from src.utils.logging_config import setup_logger
 import markdown
 from nio.events.room_events import RoomMessageText
 from nio.rooms import MatrixRoom
+from typing import Optional
 
 from enum import Enum
 
@@ -50,8 +51,8 @@ class Poll:
 
         logger.info(f"Poll closed: {self}")
 
-    async def list_items(self, match: botlib.MessageMatch) -> None:
-        text = await self.formatted_markdown(f"## {self.name}")
+    async def list_items(self, room_id: str, title: Optional[str] = None) -> None:
+        text = await self.formatted_markdown(title or f"## {self.name}")
         content = {
                 "msgtype": "m.text",
                 "body": text,
@@ -59,15 +60,15 @@ class Poll:
                 "formatted_body": markdown.markdown(text,
                                                     extensions=['fenced_code', 'nl2br'])
             }
-        resp = await self.bot.async_client.room_send(room_id = match.room.room_id, message_type = "m.room.message", content = content)
+        resp = await self.bot.async_client.room_send(room_id = room_id, message_type = "m.room.message", content = content)
         if not isinstance(resp, RoomSendResponse):
             logger.error(f"Failed to send message: {resp}")
             return
         self.status_messages.append({"room_id": resp.room_id, "event_id": resp.event_id})
 
-    async def open_poll(self) -> None:
+    async def open_poll(self, title: str) -> None:
         self.status = PollStatus.OPEN
-        await self.bot.api.send_markdown_message(self.room.room_id, await self.formatted_markdown(f"## {self.name}"))
+        await self.list_items(self.room.room_id, title)
 
     def get_item(self, item_name: str) -> ItemEntry | None:
         for item_entry in self.item_entries:

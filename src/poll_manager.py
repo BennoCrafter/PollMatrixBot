@@ -97,8 +97,8 @@ class PollManager:
 
         active_polls.append(poll)
         logger.info(f"Poll created: {poll}")
-
         await self.bot.api.send_markdown_message(match.room.room_id, f"## Poll Created: {title} (Ends at {close_date.strftime('%H:%M')})")
+        await poll.list_items(match.room.room_id)
         self.schedule_close(poll)
 
     @staticmethod
@@ -157,8 +157,7 @@ class PollManager:
             await handle_error(match, self.config)
             return
 
-        await poll.list_items(match)
-        logger.info("Listed poll items")
+        await poll.list_items(match.room.room_id)
 
     async def remove_item(self, match: botlib.MessageMatch):
         """Remove an item from an active poll."""
