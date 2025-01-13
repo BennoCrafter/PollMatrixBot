@@ -20,7 +20,6 @@ from src.utils.singleton import singleton
 # Setup logger
 logger = setup_logger(__name__)
 
-active_polls = []
 
 @singleton
 class PollManager:
@@ -28,6 +27,8 @@ class PollManager:
         logger.info("Initializing PollManager")
         self.bot = get_bot()
         self.scheduler = AsyncJobScheduler()
+        self.active_polls = []
+
         # todo: load config
         self.config = load_config("assets/config.yaml")
 
@@ -37,13 +38,13 @@ class PollManager:
         async def close_wrapper():
             await self.close_poll(poll)
 
-        self.scheduler.add_job(job_id=poll.name, run_at=poll.close_date, function=close_wrapper)
+        self.scheduler.add_job(job_id=str(poll.id), run_at=poll.close_date, function=close_wrapper)
         logger.info(f"Scheduled poll '{poll.name}' to close at {poll.close_date}")
 
     async def close_poll(self, poll: Poll):
         await poll.close_poll()
         self.scheduler.remove_job(poll.name)
-        active_polls.remove(poll)
+        self.active_polls.remove(poll)
 
     async def create_poll(self, match: botlib.MessageMatch):
         """
@@ -94,17 +95,20 @@ class PollManager:
         logger.info(close_date)
 
 
-        poll = Poll(id=len(active_polls), name=title, close_date=close_date, room=match.room, item_entries=[])
+        poll = Poll(id=len(self.active_polls), name=title, close_date=close_date, room=match.room, item_entries=[])
 
-        active_polls.append(poll)
+        self.active_polls.append(poll)
         logger.info(f"Poll created: {poll}")
         await poll.list_items(match.room.room_id)
         self.schedule_close(poll)
 
-    @staticmethod
-    def get_active_poll(room_id: str) -> Optional[Poll]:
+    def get_active_poll(self, room_id: str) -> Optional[Poll]:
         """Retrieve the active poll in the given room, if any."""
-        return next((poll for poll in active_polls if poll.room.room_id == room_id), None)
+        for poll in self.active_polls:
+            if poll.room.room_id == room_id:
+                return poll
+
+        return None
 
     async def update_auto_poll_closing(self, match: botlib.MessageMatch):
         poll = self.get_active_poll(match.room.room_id)
