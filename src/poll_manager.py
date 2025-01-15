@@ -58,12 +58,16 @@ class PollManager:
         """
         close_date: datetime.datetime | None = None
 
-        # Ensure the message contains arguments
+        # if no args return
         if not match.args():
             await self.message_reactor.error(match.room.room_id, match.event)
             return
 
-        # Create a poll title from the message arguments
+        p = self.get_active_poll(match.room.room_id)
+        if p is not None:
+            await self.close_poll(p)
+
+        # options todo: make func or class for this
         options: list[str] = ' '.join(match.args()).strip().split(",")
 
         if len(options) < 1:
