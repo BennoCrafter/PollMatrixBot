@@ -66,10 +66,12 @@ The Matrix Poll Bot supports the following commands:
 
 ## Configuration
 Create a ```.env``` file in the project's root directory with the following environment variables:
+Use password or access token to authenticate
 
 ```makefile
 USERNAME=your-matrix-username
 PASSWORD=your-matrix-password
+ACCESS_TOKEN=your-matrix-access-token
 HOMESERVER=your-matrix-homeserver
 ```
 
