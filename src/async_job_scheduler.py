@@ -23,13 +23,13 @@ class AsyncJobScheduler:
     def add_job(self, job_id: str, run_at: datetime, function: Callable, *args, **kwargs):
         """Add a job to the scheduler."""
         if job_id in self.jobs_dict:
-            raise ValueError(f"Job ID '{job_id}' already exists.")
+            logger.error(f"Job ID '{job_id}' already exists.")
 
         # Calculate delay until execution
         delay = (run_at - datetime.now(pytz.utc)).total_seconds()
         logger.info(f"Scheduling job '{job_id}' to run at {run_at} UTC ({delay} seconds from now)")
         if delay < 0:
-            raise ValueError("run_at must be a future datetime.")
+            logger.error("run_at must be a future datetime.")
 
         # Job metadata
         self.jobs_dict[job_id] = {
@@ -75,17 +75,18 @@ class AsyncJobScheduler:
                 task.cancel()
             del self.jobs_dict[job_id]
         else:
-            raise ValueError(f"Job ID '{job_id}' does not exist.")
+            logger.error(f"Job ID '{job_id}' does not exist.")
 
     def update_job_time(self, job_id: str, new_run_at: datetime):
         """Update the scheduled time for an existing job."""
         if job_id not in self.jobs_dict:
-            raise ValueError(f"Job ID '{job_id}' does not exist.")
+            logger.error(f"Job ID '{job_id}' does not exist.")
 
         # Calculate new delay
         delay = (new_run_at - datetime.now(pytz.utc)).total_seconds()
         if delay < 0:
-            raise ValueError("new_run_at must be a future datetime.")
+            logger.error("new_run_at must be a future datetime.")
+            return
 
         # Cancel existing task
         task = self.jobs_dict[job_id]["task"]
