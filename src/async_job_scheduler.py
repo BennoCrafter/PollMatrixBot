@@ -24,12 +24,14 @@ class AsyncJobScheduler:
         """Add a job to the scheduler."""
         if job_id in self.jobs_dict:
             logger.error(f"Job ID '{job_id}' already exists.")
+            return
 
         # Calculate delay until execution
         delay = (run_at - datetime.now(pytz.utc)).total_seconds()
         logger.info(f"Scheduling job '{job_id}' to run at {run_at} UTC ({delay} seconds from now)")
         if delay < 0:
             logger.error("run_at must be a future datetime.")
+            return
 
         # Job metadata
         self.jobs_dict[job_id] = {
@@ -81,6 +83,7 @@ class AsyncJobScheduler:
         """Update the scheduled time for an existing job."""
         if job_id not in self.jobs_dict:
             logger.error(f"Job ID '{job_id}' does not exist.")
+            return
 
         # Calculate new delay
         delay = (new_run_at - datetime.now(pytz.utc)).total_seconds()
