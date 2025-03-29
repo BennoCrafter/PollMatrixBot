@@ -154,7 +154,7 @@ class PollManager:
                 await self.message_reactor.error(structure.match.room.room_id, structure.match.event)
                 return
 
-            await self.bot.api.send_reaction(structure.match.room.room_id, structure.match.event, self.config["reaction"]["removed"])
+            await self.message_reactor.removed(structure.match.room.room_id, structure.match.event)
             logger.info(f"Removed item '{item_name}' with quantity {count}")
 
     async def handle_close_poll(self, room: MatrixRoom) -> bool:
