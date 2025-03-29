@@ -27,5 +27,4 @@ commands: # the command name needs to be the same as the python file command nam
   list_items_command: ["list", "ls", "status"]
   close_poll_command: ["close", "finish"]
   add_item_command: ["add", "a"]
-  end_command: ["end"]
   release_notes_command: ["release", "releasenotes"]
