@@ -4,6 +4,7 @@ from typing import Optional
 import pytz
 import asyncio
 
+from src.command_structure import CommandStructure
 from src.async_job_scheduler import AsyncJobScheduler
 from src.bot_instance import get_bot
 from src.poll import Poll
@@ -34,19 +35,11 @@ class PollManager:
 
         self.message_reactor = MessageReactor(self.config)
 
-    def schedule_close(self, poll: Poll):
-        async def close_wrapper():
-            await self.close_poll(poll)
-
-        self.scheduler.add_job(job_id=str(poll.id), run_at=poll.close_date, function=close_wrapper)
-        logger.info(f"Scheduled poll '{poll.name}' to close at {poll.close_date}")
-
     async def close_poll(self, poll: Poll):
         await poll.close_poll()
-        self.scheduler.remove_job(poll.name)
         self.active_polls.remove(poll)
 
-    async def create_poll(self, match: botlib.MessageMatch):
+    async def create_poll(self, structure: CommandStructure):
         """
         Creates a poll based on the provided arguments.
 
@@ -58,53 +51,22 @@ class PollManager:
         """
         close_date: datetime.datetime | None = None
 
-        # if no args return
-        if not match.args():
-            await self.message_reactor.error(match.room.room_id, match.event)
+        title = structure.args_string
+        if title is None:
+            logger.warn("Poll needs at least one option (title)")
+            await self.message_reactor.error(structure.match.room.room_id, structure.match.event)
             return
 
-        p = self.get_active_poll(match.room.room_id)
+        p = self.get_active_poll(structure.match.room.room_id)
         if p is not None:
             await self.close_poll(p)
 
-        # options todo: make func or class for this
-        options: list[str] = ' '.join(match.args()).strip().split(",")
 
-        if len(options) < 1:
-            logger.warn("Poll needs at least one option (title)")
-            await self.message_reactor.error(match.room.room_id, match.event)
-            return
-
-        title = options[0]
-
-        if len(options) > 1:
-            try:
-                close_date = datetime.datetime.strptime(options[1].strip(), self.config.get("date_format", "%H:%M"))
-            except ValueError:
-                logger.warn(f"Could not parse date: {options[1].strip()}")
-                await self.message_reactor.error(match.room.room_id, match.event)
-                return
-
-        if close_date is None:
-            # if close date is None, close date is set to eob
-            close_date = datetime.datetime.now().replace(hour=18, minute=0, second=0, microsecond=0)
-            if datetime.datetime.now().hour >= 18:
-                close_date = close_date + datetime.timedelta(days=1)
-
-
-        # todo make config
-        # Convert to UTC
-        local_tz = pytz.timezone("Europe/Berlin")
-        close_date = local_tz.localize(close_date)
-        logger.info(close_date)
-
-
-        poll = Poll(id=len(self.active_polls), name=title, close_date=close_date, room=match.room, item_entries=[])
+        poll = Poll(id=len(self.active_polls), name=title, room=structure.match.room, item_entries=[])
 
         self.active_polls.append(poll)
         logger.info(f"Poll created: {poll}")
-        await poll.list_items(match.room.room_id)
-        self.schedule_close(poll)
+        await poll.list_items(structure.match.room.room_id)
 
     def get_active_poll(self, room_id: str) -> Optional[Poll]:
         """Retrieve the active poll in the given room, if any."""
@@ -140,7 +102,6 @@ class PollManager:
 
         self.scheduler.update_job_time(poll.name, close_date)
         await self.message_reactor.success(match.room.room_id, match.event)
-        poll.close_date = close_date
         await poll.update_status_messages()
 
     async def process_message_items(self, body_msg: str) -> list[tuple[int, str]]:
@@ -153,22 +114,21 @@ class PollManager:
             items.append((count, name))
         return items
 
-    async def add_item(self, match: botlib.MessageMatch):
+    async def add_item(self, struct: CommandStructure):
         """Add an item to an active poll."""
-        poll = self.get_active_poll(match.room.room_id)
+        poll = self.get_active_poll(struct.match.room.room_id)
         if not poll:
             return
 
-        body_msg = ' '.join(match.args()).strip() if self.config["use_add_command"] else match.event.body.strip()
-        if not body_msg:
+        if struct.args_string is None:
             return
 
-        items = await self.process_message_items(body_msg)
+        items = await self.process_message_items(struct.args_string)
         for count, item_name in items:
-            await poll.add_response(item_name, match.event.sender, count)
+            await poll.add_response(item_name, struct.match.event.sender, count)
             logger.info(f"Added item '{item_name}' with quantity {count}")
 
-        await self.message_reactor.success(match.room.room_id, match.event)
+        await self.message_reactor.success(struct.match.room.room_id, struct.match.event)
 
     async def list_items(self, match: botlib.MessageMatch):
         """List all items in an active poll."""
@@ -179,26 +139,25 @@ class PollManager:
 
         await poll.list_items(match.room.room_id)
 
-    async def remove_item(self, match: botlib.MessageMatch):
+    async def remove_item(self, structure: CommandStructure):
         """Remove an item from an active poll."""
-        poll = self.get_active_poll(match.room.room_id)
-        if not poll or not match.args():
-            await self.message_reactor.error(match.room.room_id, match.event)
+        poll = self.get_active_poll(structure.match.room.room_id)
+        if not poll or structure.args_string is None:
+            await self.message_reactor.error(structure.match.room.room_id, structure.match.event)
             return
 
-        body_msg = ' '.join(match.args()).strip()
-        items = await self.process_message_items(body_msg)
+        items = await self.process_message_items(structure.args_string)
 
         for count, item_name in items:
             item = poll.get_item(item_name)
-            msg_sender = match.event.sender
+            msg_sender = structure.match.event.sender
 
             resp = await poll.remove_response(item_name, msg_sender, count)
             if not resp:
-                await self.message_reactor.error(match.room.room_id, match.event)
+                await self.message_reactor.error(structure.match.room.room_id, structure.match.event)
                 return
 
-            await self.bot.api.send_reaction(match.room.room_id, match.event, self.config["reaction"]["removed"])
+            await self.bot.api.send_reaction(structure.match.room.room_id, structure.match.event, self.config["reaction"]["removed"])
             logger.info(f"Removed item '{item_name}' with quantity {count}")
 
     async def handle_close_poll(self, room: MatrixRoom) -> bool:

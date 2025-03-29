@@ -3,6 +3,7 @@ import simplematrixbotlib as botlib
 from src.utils.load_file import load_file
 from nio.events.room_events import RoomMessageText
 from src.command_system import command_descriptions
+from src.command_structure import CommandStructure
 
 class HelpCommand(Command):
     """
@@ -20,5 +21,5 @@ class HelpCommand(Command):
         for name, des in self.command_descriptions.items():
             self.md += f"**{name}**: {des}\n"
 
-    async def execute(self, message: botlib.MessageMatch, **kwargs) -> None:
-        await self.bot.api.send_markdown_message(message.room.room_id, self.md)
+    async def execute(self, structure: CommandStructure, **kwargs) -> None:
+        await self.bot.api.send_markdown_message(structure.match.room.room_id, self.md)

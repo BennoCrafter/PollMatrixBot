@@ -4,6 +4,7 @@ import simplematrixbotlib as botlib
 from src.utils.load_file import load_file
 from src.poll import Poll
 from src.poll_manager import PollManager
+from src.command_structure import CommandStructure
 
 
 class ClosePollCommand(Command):
@@ -14,5 +15,5 @@ class ClosePollCommand(Command):
     def __init__(self, trigger_names: list[str]) -> None:
         super().__init__(trigger_names)
 
-    async def execute(self, message: botlib.MessageMatch, **kwargs) -> None:
-        await self.poll_manager.handle_close_poll(message.room)
+    async def execute(self, structure: CommandStructure, **kwargs) -> None:
+        await self.poll_manager.handle_close_poll(structure.match.room)

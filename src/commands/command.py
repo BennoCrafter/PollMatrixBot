@@ -1,10 +1,13 @@
 from abc import ABC, abstractmethod
 import simplematrixbotlib as botlib
+from src.command_structure import CommandStructure
 from src.utils.load_config import load_config
 from src.bot_instance import get_bot
 from src.poll_manager import PollManager
 from nio.events.room_events import RoomMessageText
 from src.utils.logging_config import setup_logger
+from typing import Optional
+from dataclasses import dataclass
 
 class Command(ABC):
     def __init__(self, trigger_names: list[str]) -> None:
@@ -15,14 +18,17 @@ class Command(ABC):
         self.bot = get_bot()
         self.poll_manager = PollManager()
         self.logger = setup_logger(__name__)
+        self.prefix = self.config.get('command_prefix', '!')
 
-    def is_valid(self, match: botlib.MessageMatch) -> bool:
-        return match.command() in self.trigger_names
-
+    def matches(self, command_structure: CommandStructure) -> bool:
+        if command_structure.command in self.trigger_names:
+            return True
+        return False
 
     def load(self) -> None:
+        """Function which gets called before command initialization"""
         ...
 
     @abstractmethod
-    async def execute(self, message: botlib.MessageMatch, **kwargs) -> None:
+    async def execute(self, structure: CommandStructure, **kwargs) -> None:
         raise NotImplementedError("execute must be implemented by subclasses")

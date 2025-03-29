@@ -18,6 +18,7 @@ from src.utils.load_file import load_file
 from src.utils.logging_config import setup_logger
 from src.utils.once_decorator import once
 from src.poll_manager import PollManager
+from src.command_manager import CommandManager
 
 # Setup logger
 logger = setup_logger(__name__)
@@ -40,18 +41,17 @@ bot = get_bot()
 async def handle_message(match: botlib.MessageMatch, config):
     """Process incoming messages and execute the corresponding command."""
 
-    to_exec_command: Command | None = None
-    for command in commands:
-        if command.is_valid(match):
-            to_exec_command = command
-            break
-
-    if to_exec_command is None:
-        if not config["use_add_command"]:
-            await poll_manager.add_item(match)
-            return
+    command_match = command_manager.get_matching_command(match)
+    if command_match is None:
         return
-    await to_exec_command.execute(message=match)
+    # if command_match is None:
+    #     if not config["use_add_command"]:
+    #         await poll_manager.add_from_match_item(match)
+    #         return
+    #     return
+
+    command, struct = command_match
+    await command.execute(struct)
 
 
 @bot.listener.on_message_event # type: ignore
@@ -138,6 +138,7 @@ async def send_private_dm(user_id: str, message: str) -> bool:
 if __name__ == "__main__":
     poll_manager = PollManager()
     commands: list[Command] = load_commands(Path("src/commands"))
+    command_manager = CommandManager(commands, config.get("prefix", "!"))
 
     logger.info("Starting bot...")
     bot.run()

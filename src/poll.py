@@ -23,11 +23,10 @@ logger = setup_logger(__name__)
 
 
 class Poll:
-    def __init__(self, id: int, close_date: datetime.datetime, name: str, room: MatrixRoom,
+    def __init__(self, id: int, name: str, room: MatrixRoom,
                  item_entries: list[ItemEntry]) -> None:
         self.id: int = id
         self.name: str = name
-        self.close_date = close_date
         self.room = room
         self.item_entries: list[ItemEntry] = item_entries
         # [{"room_id": room_id, "event_id": event_id}, ...]
@@ -123,9 +122,8 @@ class Poll:
         return item_name1.lower() == item_name2.lower()
 
     async def formatted_markdown(self, title) -> str:
-        d = f"until {self.close_date.strftime('%H:%M') if self.close_date.date() == datetime.datetime.now().date() else self.close_date.strftime('%d.%m.%Y %H:%M')}"
-        status = "(closed)" if self.status == PollStatus.CLOSED else None
-        r = f"## {self.name} {d if status is None else status}\n"
+        status = "(closed)" if self.status == PollStatus.CLOSED else ""
+        r = f"## {self.name} {status}\n"
 
         for item_entry in self.sorted_entries():
             r += f"- {item_entry.get_total_count()}x {item_entry.name} ({await item_entry.format_users()})\n"
@@ -135,4 +133,4 @@ class Poll:
         return sorted(self.item_entries, key=lambda x: x.name)
 
     def __str__(self) -> str:
-        return f"Poll ID = {self.id}, Name = '{self.name}', Close Date = {self.close_date}"
+        return f"Poll ID = {self.id}, Name = '{self.name}'"
