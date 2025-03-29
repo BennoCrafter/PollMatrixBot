@@ -1,10 +1,5 @@
-from nio.events.room_events import RoomMessageText
 
 from src.commands.command import Command
-import simplematrixbotlib as botlib
-from src.utils.load_file import load_file
-from src.poll import Poll
-from src.poll_manager import PollManager
 from src.command_structure import CommandStructure
 
 

@@ -2,20 +2,15 @@ import asyncio
 from typing import Optional
 from src.bot_instance import get_bot, initialize_bot
 from pathlib import Path
-import os
 from dotenv import load_dotenv
 from nio.events.room_events import ReactionEvent, RoomMessageText
 from nio.responses import DirectRoomsErrorResponse, RoomCreateError
 from nio.rooms import MatrixRoom
 import simplematrixbotlib as botlib
-import datetime
 from src.command_system import register_command_from_path
 
 from src.commands.command import Command
-from src.poll import Poll
 from src.utils.load_config import load_config
-from src.utils.get_quantity_number import get_quantity_number
-from src.utils.load_file import load_file
 from src.utils.logging_config import setup_logger
 from src.utils.once_decorator import once
 from src.poll_manager import PollManager

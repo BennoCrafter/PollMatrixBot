@@ -1,7 +1,5 @@
 from src.commands.command import Command
-import simplematrixbotlib as botlib
 from src.utils.load_file import load_file
-from nio.events.room_events import RoomMessageText
 from src.command_system import command_descriptions
 from src.command_structure import CommandStructure
 

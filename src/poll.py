@@ -1,16 +1,9 @@
 from src.item import ItemEntry
-from src.utils.insert_invisible_char import insert_invisible_char
-import datetime
 from nio import MatrixRoom
-import simplematrixbotlib as botlib
-from simplematrixbotlib import MessageMatch
 from nio.responses import RoomSendResponse
-from nio.events import Event
 from src.bot_instance import get_bot
 from src.utils.logging_config import setup_logger
 import markdown
-from nio.events.room_events import RoomMessageText
-from nio.rooms import MatrixRoom
 from typing import Optional
 
 from enum import Enum

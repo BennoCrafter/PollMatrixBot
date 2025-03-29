@@ -1,13 +1,9 @@
 from abc import ABC, abstractmethod
-import simplematrixbotlib as botlib
 from src.command_structure import CommandStructure
 from src.utils.load_config import load_config
 from src.bot_instance import get_bot
 from src.poll_manager import PollManager
-from nio.events.room_events import RoomMessageText
 from src.utils.logging_config import setup_logger
-from typing import Optional
-from dataclasses import dataclass
 
 class Command(ABC):
     def __init__(self, trigger_names: list[str]) -> None:

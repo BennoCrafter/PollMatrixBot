@@ -16,10 +16,10 @@ reactions:
       enabled: true
       emoji: "❌"
     success:
-      enabled: false
+      enabled: true
       emoji: "✅"
     removed:
-      enabled: false
+      enabled: true
       emoji: "🗑"
 
 # commands (note: key of trigger names need to be the same as the python command name)

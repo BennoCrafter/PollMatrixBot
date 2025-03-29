@@ -1,4 +1,3 @@
-import simplematrixbotlib as botlib
 from src.bot_instance import get_bot
 
 async def get_sender_name(sender: str) -> str:

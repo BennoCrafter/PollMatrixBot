@@ -1,7 +1,6 @@
 import simplematrixbotlib
 from src.commands.command import Command
 from typing import Optional
-from dataclasses import dataclass
 from src.command_structure import CommandStructure
 from src.utils.logging_config import setup_logger
 
