@@ -5,7 +5,6 @@ import pytz
 import asyncio
 
 from src.command_structure import CommandStructure
-from src.async_job_scheduler import AsyncJobScheduler
 from src.bot_instance import get_bot
 from src.poll import Poll
 from src.utils.logging_config import setup_logger
@@ -27,7 +26,6 @@ class PollManager:
     def __init__(self):
         logger.info("Initializing PollManager")
         self.bot = get_bot()
-        self.scheduler = AsyncJobScheduler()
         self.active_polls = []
 
         # todo: load config
@@ -100,7 +98,6 @@ class PollManager:
         local_tz = pytz.timezone("Europe/Berlin")
         close_date = local_tz.localize(close_date)
 
-        self.scheduler.update_job_time(poll.name, close_date)
         await self.message_reactor.success(match.room.room_id, match.event)
         await poll.update_status_messages()
 
