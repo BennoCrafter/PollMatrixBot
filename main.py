@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 from src.bot_instance import get_bot, initialize_bot
 from pathlib import Path
@@ -134,6 +135,15 @@ async def send_private_dm(user_id: str, message: str) -> bool:
     await bot.api.send_text_message(room_id, message)
     return True
 
+def main():
+    try:
+        bot.run()
+    except KeyboardInterrupt:
+        logger.info("Keyboard interrupt detected, shutting down...")
+        asyncio.run(bot.async_client.close())
+    finally:
+        logger.info("Bot shut down successfully")
+
 
 if __name__ == "__main__":
     poll_manager = PollManager()
@@ -141,4 +151,4 @@ if __name__ == "__main__":
     command_manager = CommandManager(commands, config.get("prefix", "!"))
 
     logger.info("Starting bot...")
-    bot.run()
+    main()
