@@ -18,7 +18,7 @@ class HelpCommand(Command):
         self.command_descriptions: dict[str, str] = command_descriptions
         self.md = ""
         for name, des in self.command_descriptions.items():
-            self.md += f"**{name}**: {des}\n"
+            self.md += des
 
     async def execute(self, structure: CommandStructure, **kwargs) -> None:
         await self.bot.api.send_markdown_message(structure.match.room.room_id, self.md)
