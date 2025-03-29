@@ -69,10 +69,10 @@ Create a ```.env``` file in the project's root directory with the following envi
 Use password or access token to authenticate
 
 ```makefile
+HOMESERVER=your-matrix-homeserver
 USERNAME=your-matrix-username
 PASSWORD=your-matrix-password
 ACCESS_TOKEN=your-matrix-access-token
-HOMESERVER=your-matrix-homeserver
 ```
 
 Configure other things in ```assets/config.yaml```

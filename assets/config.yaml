@@ -8,7 +8,6 @@ prefix: "!"
 default_quantity_number: 1
 date_format: "%d.%m.%Y %H:%M"
 
-# Reactions
 reactions:
   enabled: true
   types:
@@ -22,7 +21,7 @@ reactions:
       enabled: true
       emoji: "🗑"
 
-# commands (note: key of trigger names need to be the same as the python command name)
+# commands (note: key of trigger names need to be the same as the python file command name)
 commands:
   help_command: ["help", "h"]
   create_poll_command: ["create", "poll", "lunchy"]

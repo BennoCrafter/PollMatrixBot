@@ -11,3 +11,5 @@ replit.nix
 session.txt
 store
 venv
+.ruff_cache
+.pytest_cache
