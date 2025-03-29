@@ -2,28 +2,26 @@ help_message_file: "assets/help_message.md"
 session_file: "session.txt"
 
 delete_session_file_on_start: true
-use_add_command: true
-status_title: "Shopping List"
-prefix: "!"
-default_quantity_number: 1
-date_format: "%d.%m.%Y %H:%M"
+use_add_command: true # whether to use the add command to add items to the poll or adding every captured message to the poll
+prefix: "!" # the prefix used to trigger commands
+default_quantity_number: 1 # the default quantity number used when adding items to the poll
 
 reactions:
-  enabled: true
+  enabled: true # whether to enable reactions
   types:
     error:
-      enabled: true
+      enabled: true # whether to enable the error reaction
       emoji: "❌"
     success:
-      enabled: true
+      enabled: true # whether to enable the success reaction
       emoji: "✅"
     removed:
-      enabled: true
+      enabled: true # whether to enable the removed reaction
       emoji: "🗑"
 
-# commands (note: key of trigger names need to be the same as the python file command name)
-commands:
-  help_command: ["help", "h"]
+# all available commands
+commands: # the command name needs to be the same as the python file command name
+  help_command: ["help", "h"] # a list of trigger names for the command
   create_poll_command: ["create", "poll", "lunchy"]
   remove_item_command: ["remove"]
   list_items_command: ["list", "ls", "status"]
