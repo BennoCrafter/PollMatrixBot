@@ -1,8 +1,4 @@
-from datetime import datetime
-import datetime
 from typing import Optional
-import pytz
-import asyncio
 
 from src.command_structure import CommandStructure
 from src.bot_instance import get_bot
@@ -11,7 +7,6 @@ from src.utils.logging_config import setup_logger
 from src.utils.get_quantity_number import get_quantity_number
 import simplematrixbotlib as botlib
 from nio.rooms import MatrixRoom
-from nio.events.room_events import RoomMessageText
 from src.utils.load_config import load_config
 from src.message_reactor import MessageReactor
 
@@ -47,8 +42,6 @@ class PollManager:
             bot (botlib.Bot): The bot instance.
             config (dict): Bot configuration dictionary.
         """
-        close_date: datetime.datetime | None = None
-
         title = structure.args_string
         if title is None:
             logger.warn("Poll needs at least one option (title)")
@@ -73,33 +66,6 @@ class PollManager:
                 return poll
 
         return None
-
-    async def update_auto_poll_closing(self, match: botlib.MessageMatch):
-        poll = self.get_active_poll(match.room.room_id)
-        if not poll:
-            await self.message_reactor.error(match.room.room_id, match.event)
-            return
-
-        options: list[str] = ' '.join(match.args()).strip().split(",")
-        if len(options) < 1:
-            return
-
-        close_date: datetime.datetime | None = None
-        try:
-            close_date = datetime.datetime.strptime(options[0].strip(), self.config.get("date_format", "%H:%M"))
-        except ValueError:
-            logger.warn(f"Could not parse date: {options[0].strip()}")
-            await self.message_reactor.error(match.room.room_id, match.event)
-            return
-
-
-        # todo make config
-        # Convert to UTC
-        local_tz = pytz.timezone("Europe/Berlin")
-        close_date = local_tz.localize(close_date)
-
-        await self.message_reactor.success(match.room.room_id, match.event)
-        await poll.update_status_messages()
 
     async def process_message_items(self, body_msg: str) -> list[tuple[int, str]]:
         """Process message text into list of quantity/item pairs."""
@@ -146,7 +112,6 @@ class PollManager:
         items = await self.process_message_items(structure.args_string)
 
         for count, item_name in items:
-            item = poll.get_item(item_name)
             msg_sender = structure.match.event.sender
 
             resp = await poll.remove_response(item_name, msg_sender, count)
