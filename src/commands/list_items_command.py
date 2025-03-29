@@ -10,7 +10,6 @@ from src.command_structure import CommandStructure
 
 class ListItemsCommand(Command):
     """
-    **Listing Poll Items**
     **List Poll Items**: Use the `!status` command to list all items in the poll.
     """
     def __init__(self, trigger_names: list[str]) -> None:

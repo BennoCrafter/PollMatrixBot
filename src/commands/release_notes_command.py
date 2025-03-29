@@ -10,7 +10,6 @@ from src.command_structure import CommandStructure
 
 class ReleaseNotesCommand(Command):
     """
-    **Release Notes**
     **Release Notes**: Use the `!releasenotes` command to view the release notes for the current version.
     """
 

@@ -9,7 +9,6 @@ from src.command_structure import CommandStructure
 
 class ClosePollCommand(Command):
     """
-    **Closing a Poll**
     **Close a Poll**: Use the `!close` command to close a poll.
     """
     def __init__(self, trigger_names: list[str]) -> None:

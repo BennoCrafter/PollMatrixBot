@@ -7,7 +7,6 @@ from src.command_structure import CommandStructure
 
 class HelpCommand(Command):
     """
-    **Help**
     **Help**: Use the `!help` command to get a list of all available commands.
     """
     def __init__(self, trigger_names: list[str]) -> None:

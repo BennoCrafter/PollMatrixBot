@@ -10,7 +10,6 @@ from src.command_structure import CommandStructure
 
 class AddCommand(Command):
     """
-    Adds an item to the poll
     **Add Item**: Use the `!lunchy <quantity>x <item>` command to add an item to the poll.
     """
     def __init__(self, trigger_names: list[str]) -> None:

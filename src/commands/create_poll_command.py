@@ -10,10 +10,8 @@ from src.command_structure import CommandStructure
 
 class CreatePollCommand(Command):
     """
-    **Creating a Poll**
-    **Start a Poll**: Use the `!lunchy <name>, <end_date>(optional)` command to start a new poll.
-      - Date: hh.mm (24-hour)
-      - Example: `!lunchy Eating list 25.1.2025 13.30`
+    **Start a Poll**: Use the `!lunchy <name>` command to start a new poll.
+      - Example: `!lunchy Eating list`
     """
 
     def __init__(self, trigger_names: list[str]) -> None:
