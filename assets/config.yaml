@@ -28,3 +28,4 @@ commands: # the command name needs to be the same as the python file command nam
   close_poll_command: ["close", "finish"]
   add_item_command: ["add", "a"]
   release_notes_command: ["release", "releasenotes"]
+  reopen_poll_command: ["reopen"]

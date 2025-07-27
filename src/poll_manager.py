@@ -22,6 +22,7 @@ class PollManager:
         logger.info("Initializing PollManager")
         self.bot = get_bot()
         self.active_polls = []
+        self.last_poll: Optional[Poll] = None
 
         # todo: load config
         self.config = load_config("assets/config.yaml")
@@ -30,7 +31,17 @@ class PollManager:
 
     async def close_poll(self, poll: Poll):
         await poll.close_poll()
+        self.last_poll = poll
         self.active_polls.remove(poll)
+
+    async def reopen_poll(self):
+        if self.last_poll is None:
+            logger.warning("No poll to reopen")
+            return
+        await self.last_poll.reopen_poll()
+        self.active_polls.append(self.last_poll)
+
+        self.last_poll = None
 
     async def create_poll(self, structure: CommandStructure):
         """

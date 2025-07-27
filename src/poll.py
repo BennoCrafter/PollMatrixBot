@@ -53,9 +53,20 @@ class Poll:
 
     async def close_poll(self) -> None:
         self.status = PollStatus.CLOSED
-        await self.bot.api.send_markdown_message(self.room.room_id, await self.formatted_markdown(f"## {self.name}"))
+        await self.list_items(self.room.room_id)
         await self.update_status_messages()
         logger.info(f"Poll closed: {self}")
+
+    async def reopen_poll(self) -> None:
+        self.status = PollStatus.OPEN
+        await self.delete_close_summary(self.status_messages[-1]["room_id"], self.status_messages[-1]["event_id"])
+        await self.list_items(self.room.room_id)
+        await self.update_status_messages()
+        logger.info(f"Poll reopened: {self}")
+
+    async def delete_close_summary(self, room_id: str, event_id: str) -> None:
+        await self.bot.api.redact(room_id, event_id)
+        logger.info("Poll closed summary deleted")
 
     async def list_items(self, room_id: str, title: Optional[str] = None) -> None:
         text = await self.formatted_markdown(title or f"## {self.name}")
