@@ -12,6 +12,7 @@ class PollStatus(Enum):
     OPEN = 'open'
     CLOSED = 'closed'
 
+
 logger = setup_logger(__name__)
 
 
@@ -58,6 +59,9 @@ class Poll:
         logger.info(f"Poll closed: {self}")
 
     async def reopen_poll(self) -> None:
+        if self.status == PollStatus.OPEN:
+            await self.bot.api.send_text_message(self.room.room_id, "Poll is already open")
+            return
         self.status = PollStatus.OPEN
         await self.delete_close_summary(self.status_messages[-1]["room_id"], self.status_messages[-1]["event_id"])
         await self.list_items(self.room.room_id)
@@ -82,10 +86,6 @@ class Poll:
             logger.error(f"Failed to send message: {resp}")
             return
         self.status_messages.append({"room_id": resp.room_id, "event_id": resp.event_id})
-
-    async def open_poll(self, title: str) -> None:
-        self.status = PollStatus.OPEN
-        await self.list_items(self.room.room_id, title)
 
     def get_item(self, item_name: str) -> ItemEntry | None:
         for item_entry in self.item_entries:
