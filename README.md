@@ -6,7 +6,7 @@ A handy bot for creating and managing polls in Matrix rooms.
 
 ## Features
 
-* **!create title:** Create a new poll with the specified title.
+* **!create <title>:** Create a new poll with the specified title.
 * **!close:** Close the current poll.
 * **!remove <item>:** Remove the given item from the poll.
 * **!list:** List all items currently in the poll.
