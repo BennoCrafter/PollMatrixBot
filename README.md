@@ -8,10 +8,10 @@
   **A handy bot for creating and managing polls in Matrix rooms.**
 
   
-   [![Stars](https://img.shields.io/github/stars/BennoCrafter/TrackStar?style=social)](https://github.com/BennoCrafter/TrackStar)
-   [![Forks](https://img.shields.io/github/forks/BennoCrafter/TrackStar?style=social)](https://github.com/BennoCrafter/TrackStar)
-   [![Open Issues](https://img.shields.io/github/issues/BennoCrafter/TrackStar)](https://github.com/BennoCrafter/TrackStar/issues)
-   [![Last Updated](https://img.shields.io/github/last-commit/BennoCrafter/TrackStar)](https://github.com/BennoCrafter/TrackStar/commits/main)
+   [![Stars](https://img.shields.io/github/stars/BennoCrafter/PollMatrixBot?style=social)](https://github.com/BennoCrafter/PollMatrixBot)
+   [![Forks](https://img.shields.io/github/forks/BennoCrafter/PollMatrixBot?style=social)](https://github.com/BennoCrafter/PollMatrixBot)
+   [![Open Issues](https://img.shields.io/github/issues/BennoCrafter/PollMatrixBot)](https://github.com/BennoCrafter/PollMatrixBot/issues)
+   [![Last Updated](https://img.shields.io/github/last-commit/BennoCrafter/PollMatrixBot)](https://github.com/BennoCrafter/PollMatrixBot/commits/main)
    [![simplematrixbotlib][simplematrixbotlib]][simplematrixbotlib-url]
 </div>
 
