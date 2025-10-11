@@ -3,9 +3,9 @@
 </p>
 
 <div align="center">
-    <h1>Poll Matrixbot 📊</h1>
+    <h1>Poll Matrixbot</h1>
   
-    **A handy bot for creating and managing polls in Matrix rooms.**
+  **A handy bot for creating and managing polls in Matrix rooms.**
 
   
    [![Stars](https://img.shields.io/github/stars/BennoCrafter/TrackStar?style=social)](https://github.com/BennoCrafter/TrackStar)
