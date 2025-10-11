@@ -1,8 +1,19 @@
-# PollMatrixBot
+<p align="center">
+  <img src="assets/RoundedIcon.png" width="150" height="150" alt="Posterfy Logo">
+</p>
 
-[![simplematrixbotlib][simplematrixbotlib]][simplematrixbotlib-url]
+<div align="center">
+    <h1>Poll Matrixbot 📊</h1>
+  
+    **A handy bot for creating and managing polls in Matrix rooms.**
 
-A handy bot for creating and managing polls in Matrix rooms.
+  
+   [![Stars](https://img.shields.io/github/stars/BennoCrafter/TrackStar?style=social)](https://github.com/BennoCrafter/TrackStar)
+   [![Forks](https://img.shields.io/github/forks/BennoCrafter/TrackStar?style=social)](https://github.com/BennoCrafter/TrackStar)
+   [![Open Issues](https://img.shields.io/github/issues/BennoCrafter/TrackStar)](https://github.com/BennoCrafter/TrackStar/issues)
+   [![Last Updated](https://img.shields.io/github/last-commit/BennoCrafter/TrackStar)](https://github.com/BennoCrafter/TrackStar/commits/main)
+   [![simplematrixbotlib][simplematrixbotlib]][simplematrixbotlib-url]
+</div>
 
 ## Features
 
@@ -53,16 +64,6 @@ pip install -r requirements.txt
 ```bash
 python main.py
 ```
-
-## Commands
-The Matrix Poll Bot supports the following commands:
-
-- **!create title**: Creates a new poll with the specified title.
-- **!close**: Closes the current poll and displays a status report.
-- **!remove <item>**: Removes the given item from the current poll (if enabled).
-- **!list**: Lists all options currently available in the poll.
-- **!add <item>**: Adds a new option to the current poll (if enabled, configurable).
-- **!help**: Displays the help message with available commands.
 
 ## Configuration
 Create a ```.env``` file in the project's root directory with the following environment variables:
