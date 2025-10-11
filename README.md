@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/RoundedIcon.png" width="150" height="150" alt="Posterfy Logo">
+  <img src="assets/RoundedIcon.png" width="150" height="150" alt="Lunchy Logo">
 </p>
 
 <div align="center">
