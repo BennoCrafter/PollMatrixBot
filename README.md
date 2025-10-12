@@ -4,10 +4,10 @@
 
 <div align="center">
     <h1>Poll Matrixbot</h1>
-  
+
   **A handy bot for creating and managing polls in Matrix rooms.**
 
-  
+
    [![Stars](https://img.shields.io/github/stars/BennoCrafter/PollMatrixBot?style=social)](https://github.com/BennoCrafter/PollMatrixBot)
    [![Forks](https://img.shields.io/github/forks/BennoCrafter/PollMatrixBot?style=social)](https://github.com/BennoCrafter/PollMatrixBot)
    [![Open Issues](https://img.shields.io/github/issues/BennoCrafter/PollMatrixBot)](https://github.com/BennoCrafter/PollMatrixBot/issues)
@@ -31,7 +31,7 @@
 * A Matrix account (Sign up at [Matrix.org](https://matrix.org))
 * Python 3.x
 
-### Using Docker Compose (Recommended)
+### Using Docker Compose
 
 1. Clone the repository:
 
@@ -40,7 +40,7 @@
    cd PollMatrixBot
    ```
 
-2. (Recommended) Build the Docker image:
+2. Build the Docker image:
 
 ```bash
 docker-compose build
@@ -51,7 +51,7 @@ docker-compose build
 docker-compose up -d
 ```
 
-### Running without Docker (Not Recommended)
+### Running without Docker
 
 1. Install required dependencies:
 
@@ -67,7 +67,6 @@ python main.py
 
 ## Configuration
 Create a ```.env``` file in the project's root directory with the following environment variables:
-Use password or access token to authenticate
 
 ```makefile
 HOMESERVER=your-matrix-homeserver
@@ -75,6 +74,9 @@ USERNAME=your-matrix-username
 PASSWORD=your-matrix-password
 ACCESS_TOKEN=your-matrix-access-token
 ```
+
+Use password or access token to authenticate
+
 
 Configure other things in ```assets/config.yaml```
 
