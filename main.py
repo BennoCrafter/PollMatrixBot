@@ -49,7 +49,9 @@ async def on_message(room: MatrixRoom, message: RoomMessageText) -> None:
 
 @bot.listener.on_reaction_event  # type: ignore
 async def on_reaction(room: MatrixRoom, event: ReactionEvent, reaction: str) -> None:
-    """Handle reactions; currently no operations defined."""
+    if event.sender == bot.async_client.user:
+        return
+
     logger.info(
         f"Received from user {event.sender} reaction: {reaction} --> reacts to event id {event.reacts_to}"
     )
