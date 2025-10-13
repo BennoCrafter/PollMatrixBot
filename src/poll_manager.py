@@ -56,15 +56,21 @@ class PollManager:
         title = structure.args_string
         if title is None:
             logger.warn("Poll needs at least one option (title)")
-            await self.message_reactor.error(structure.match.room.room_id, structure.match.event)
+            await self.message_reactor.error(
+                structure.match.room.room_id, structure.match.event
+            )
             return
 
         p = self.get_active_poll(structure.match.room.room_id)
         if p is not None:
             await self.close_poll(p)
 
-
-        poll = Poll(id=len(self.active_polls), name=title, room=structure.match.room, item_entries=[])
+        poll = Poll(
+            id=len(self.active_polls),
+            name=title,
+            room=structure.match.room,
+            item_entries=[],
+        )
 
         self.active_polls.append(poll)
         logger.info(f"Poll created: {poll}")
@@ -79,7 +85,7 @@ class PollManager:
         return None
 
     async def process_message_items(self, body_msg: str) -> list[tuple[int, str]]:
-        """Process message text into list of quantity/item pairs."""
+        """Process message text into list of quantity/item pairs. Returns for example: [(2, 'apple'), (3, 'banana')]"""
         items = []
         for item in [w.strip() for w in body_msg.split(",")]:
             quantity_num, item_name = get_quantity_number(item)
@@ -102,7 +108,9 @@ class PollManager:
             await poll.add_response(item_name, struct.match.event.sender, count)
             logger.info(f"Added item '{item_name}' with quantity {count}")
 
-        await self.message_reactor.success(struct.match.room.room_id, struct.match.event)
+        await self.message_reactor.success(
+            struct.match.room.room_id, struct.match.event
+        )
 
     async def list_items(self, match: botlib.MessageMatch):
         """List all items in an active poll."""
@@ -117,7 +125,9 @@ class PollManager:
         """Remove an item from an active poll."""
         poll = self.get_active_poll(structure.match.room.room_id)
         if not poll or structure.args_string is None:
-            await self.message_reactor.error(structure.match.room.room_id, structure.match.event)
+            await self.message_reactor.error(
+                structure.match.room.room_id, structure.match.event
+            )
             return
 
         items = await self.process_message_items(structure.args_string)
@@ -127,10 +137,14 @@ class PollManager:
 
             resp = await poll.remove_response(item_name, msg_sender, count)
             if not resp:
-                await self.message_reactor.error(structure.match.room.room_id, structure.match.event)
+                await self.message_reactor.error(
+                    structure.match.room.room_id, structure.match.event
+                )
                 return
 
-            await self.message_reactor.removed(structure.match.room.room_id, structure.match.event)
+            await self.message_reactor.removed(
+                structure.match.room.room_id, structure.match.event
+            )
             logger.info(f"Removed item '{item_name}' with quantity {count}")
 
     async def handle_close_poll(self, room: MatrixRoom) -> bool:
