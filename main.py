@@ -1,5 +1,6 @@
 import asyncio
 from typing import Optional
+from src.poll import Poll
 from src.bot_instance import get_bot, initialize_bot
 from pathlib import Path
 from dotenv import load_dotenv
@@ -55,7 +56,24 @@ async def on_reaction(room: MatrixRoom, event: ReactionEvent, reaction: str) -> 
     logger.info(
         f"Received from user {event.sender} reaction: {reaction} --> reacts to event id {event.reacts_to}"
     )
-    pass
+
+    # payment reminder
+
+    p = poll_manager.last_poll
+    if p is None:
+        logger.info(f"No active poll found in room {room.room_id}")
+        return
+
+    poll_summary_message_event_id = p.status_messages[-1].get("event_id")
+    if poll_summary_message_event_id is None:
+        logger.info(f"No poll summary message found in room {room.room_id}")
+        return
+
+    if poll_summary_message_event_id == event.reacts_to and reaction == config.get(
+        "paying_feature", {}
+    ).get("emoji", "💸"):
+        logger.info(f"Payment received from user {event.sender}")
+        p.add_payment_for_user(event.sender)
 
 
 async def handle_message(match: botlib.MessageMatch, config):

@@ -31,6 +31,7 @@ class PollManager:
 
     async def close_poll(self, poll: Poll):
         await poll.close_poll()
+
         self.last_poll = poll
         self.active_polls.remove(poll)
 

@@ -1,4 +1,3 @@
-from nio.schemas import UserIdRegex
 from src.item import ItemEntry
 from src.user import User
 
@@ -7,9 +6,12 @@ from nio.responses import RoomSendResponse
 from src.bot_instance import get_bot
 from src.utils.logging_config import setup_logger
 import markdown
-from typing import Optional
-
+from typing import Any, Optional
+from src.utils.load_config import load_config
 from enum import Enum
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from datetime import datetime, timedelta
+from src.utils.parse_time import parse_time
 
 
 class PollStatus(Enum):
@@ -34,6 +36,11 @@ class Poll:
 
         self.status: PollStatus = PollStatus.OPEN
         self.bot = get_bot()
+        self.config = load_config("assets/config.yaml")
+
+        self.pay_reminder_scheduler = AsyncIOScheduler()
+        self.pay_reminder_scheduler.start()
+        self.pay_reminder_job_id: Any | None = None
 
     async def add_response(self, item_name: str, username: str, count: int) -> None:
         user = self.username_to_user(username)
@@ -91,6 +98,36 @@ class Poll:
         await self.update_status_messages()
         logger.info(f"Poll closed: {self}")
 
+        paying_feature: dict = self.config.get("paying_feature", {})
+        if not paying_feature.get("enabled", False):
+            return
+
+        reminder_delay = paying_feature.get("reminder_delay", "1h")
+        reminder_delay_timedelta = parse_time(reminder_delay)
+        if reminder_delay_timedelta is None:
+            logger.error(
+                f"Invalid reminder delay in config: {reminder_delay}  Using default 1 hour"
+            )
+            reminder_delay_timedelta = timedelta(hours=1)
+
+        run_time = datetime.now() + reminder_delay_timedelta
+        job = self.pay_reminder_scheduler.add_job(
+            self.send_pay_reminder,
+            "date",
+            run_date=run_time,
+            args=[],
+        )
+        self.pay_reminder_job_id = job.id
+        logger.info(f"Pay reminder job scheduled for {run_time}")
+
+    async def send_pay_reminder(self) -> None:
+        not_payed_users = filter(lambda user: not user.has_payed, self.involved_users)
+        for user in not_payed_users:
+            await self.bot.api.send_text_message(
+                self.room.room_id, f"Oh no! {user.display_name} hasn't paid yet!"
+            )
+        logger.info(f"Pay reminder sent to {not_payed_users}")
+
     async def reopen_poll(self) -> None:
         if self.status == PollStatus.OPEN:
             await self.bot.api.send_text_message(
@@ -104,6 +141,12 @@ class Poll:
         await self.list_items(self.room.room_id)
         await self.update_status_messages()
         logger.info(f"Poll reopened: {self}")
+
+        if self.pay_reminder_job_id is None:
+            return
+
+        self.pay_reminder_scheduler.remove_job(self.pay_reminder_job_id)
+        self.pay_reminder_job_id = None
 
     async def delete_close_summary(self, room_id: str, event_id: str) -> None:
         await self.bot.api.redact(room_id, event_id)
@@ -175,6 +218,14 @@ class Poll:
 
     def sorted_entries(self) -> list[ItemEntry]:
         return sorted(self.item_entries, key=lambda x: x.name)
+
+    def add_payment_for_user(self, username: str):
+        if self.is_username_involved(username):
+            user = self.username_to_user(username)
+            user.has_payed = True
+        else:
+            # user who reacted to poll hadnt even added something to the poll
+            return
 
     def __str__(self) -> str:
         return f"Poll ID = {self.id}, Name = '{self.name}'"
