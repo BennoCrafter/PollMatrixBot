@@ -73,7 +73,7 @@ async def on_reaction(room: MatrixRoom, event: ReactionEvent, reaction: str) -> 
         "paying_feature", {}
     ).get("emoji", "💸"):
         logger.info(f"Payment received from user {event.sender}")
-        p.add_payment_for_user(event.sender)
+        await p.add_payment_for_user(event.sender)
 
 
 async def handle_message(match: botlib.MessageMatch, config):

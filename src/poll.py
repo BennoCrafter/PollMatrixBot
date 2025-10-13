@@ -121,12 +121,16 @@ class Poll:
         logger.info(f"Pay reminder job scheduled for {run_time}")
 
     async def send_pay_reminder(self) -> None:
-        not_payed_users = filter(lambda user: not user.has_payed, self.involved_users)
+        not_payed_users = [user for user in self.involved_users if not user.has_payed]
         for user in not_payed_users:
+            display_name = await user.display_name()
             await self.bot.api.send_text_message(
-                self.room.room_id, f"Oh no! {user.display_name} hasn't paid yet!"
+                self.room.room_id,
+                f"Oh no! {display_name} hasn't paid yet!",
             )
-        logger.info(f"Pay reminder sent to {not_payed_users}")
+        logger.info(
+            f"Pay reminder sent to {[user.username for user in not_payed_users]}"
+        )
 
     async def reopen_poll(self) -> None:
         if self.status == PollStatus.OPEN:
@@ -219,10 +223,17 @@ class Poll:
     def sorted_entries(self) -> list[ItemEntry]:
         return sorted(self.item_entries, key=lambda x: x.name)
 
-    def add_payment_for_user(self, username: str):
+    async def add_payment_for_user(self, username: str):
         if self.is_username_involved(username):
             user = self.username_to_user(username)
             user.has_payed = True
+
+            if user.pay_reminder_mention_event_id is not None:
+                # user didnt pay on time
+                # delete mention reminder message
+                await self.bot.api.redact(
+                    self.room.room_id, user.pay_reminder_mention_event_id
+                )
         else:
             # user who reacted to poll hadnt even added something to the poll
             return
