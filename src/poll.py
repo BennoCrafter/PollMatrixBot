@@ -31,8 +31,8 @@ class Poll:
         self.room: MatrixRoom = room
         self.item_entries: list[ItemEntry] = item_entries
         self.involved_users: list[User] = []
-        #  List of the !status messages, where all items are listed --> [{"room_id": room_id, "event_id": event_id}, ...]
-        self.status_messages: list[dict] = []
+        #  List of the !status messages, where all event ids are listed
+        self.status_messages: list[str] = []
 
         self.status: PollStatus = PollStatus.OPEN
         self.bot = get_bot()
@@ -105,7 +105,7 @@ class Poll:
         # pay reminder feature
         pay_emoji: str = paying_feature.get("emoji", "💸")
         if paying_feature.get("auto_send_emoji", True):
-            poll_summary_event_id = self.status_messages[-1].get("event_id")
+            poll_summary_event_id = self.status_messages[-1]
             if poll_summary_event_id:
                 content = {
                     "m.relates_to": {
@@ -175,9 +175,7 @@ class Poll:
             )
             return
         self.status = PollStatus.OPEN
-        await self.delete_close_summary(
-            self.status_messages[-1]["room_id"], self.status_messages[-1]["event_id"]
-        )
+        await self.delete_close_summary(self.room.room_id, self.status_messages[-1])
         await self.list_items(self.room.room_id)
         await self.update_status_messages()
         logger.info(f"Poll reopened: {self}")
@@ -208,9 +206,7 @@ class Poll:
         if not isinstance(resp, RoomSendResponse):
             logger.error(f"Failed to send message: {resp}")
             return
-        self.status_messages.append(
-            {"room_id": resp.room_id, "event_id": resp.event_id}
-        )
+        self.status_messages.append(resp.event_id)
 
     def get_item(self, item_name: str) -> ItemEntry | None:
         for item_entry in self.item_entries:
@@ -223,9 +219,7 @@ class Poll:
         await self.update_status_messages()
 
     async def update_status_messages(self) -> None:
-        for msg in self.status_messages:
-            event_id = msg.get("event_id", "")
-            room_id = msg.get("room_id", "")
+        for event_id in self.status_messages:
             mekr = await self.formatted_markdown(f"## {self.name}")
             co = {
                 "msgtype": "m.text",
@@ -243,7 +237,9 @@ class Poll:
                     ),
                 },
             }
-            await self.bot.async_client.room_send(room_id, "m.room.message", co)
+            await self.bot.async_client.room_send(
+                self.room.room_id, "m.room.message", co
+            )
 
     def equals(self, item_name1: str, item_name2: str) -> bool:
         return item_name1.lower() == item_name2.lower()

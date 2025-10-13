@@ -64,7 +64,7 @@ async def on_reaction(room: MatrixRoom, event: ReactionEvent, reaction: str) -> 
         logger.info(f"No active poll found in room {room.room_id}")
         return
 
-    poll_summary_message_event_id = p.status_messages[-1].get("event_id")
+    poll_summary_message_event_id = p.status_messages[-1]
     if poll_summary_message_event_id is None:
         return
 
