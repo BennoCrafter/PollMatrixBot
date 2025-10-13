@@ -12,4 +12,4 @@ class ReopenPollCommand(Command):
         super().__init__(trigger_names)
 
     async def execute(self, structure: CommandStructure, **kwargs) -> None:
-        await self.poll_manager.reopen_poll()
+        await self.poll_manager.reopen_poll(structure.match)

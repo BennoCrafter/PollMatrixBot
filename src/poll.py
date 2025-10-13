@@ -124,12 +124,25 @@ class Poll:
         not_payed_users = [user for user in self.involved_users if not user.has_payed]
         for user in not_payed_users:
             display_name = await user.display_name()
-            await self.bot.api.send_text_message(
-                self.room.room_id,
-                f"Oh no! {display_name} hasn't paid yet!",
+            content = {
+                "msgtype": "m.text",
+                "body": f"Oh no! {display_name} hasn't paid yet!",
+            }
+
+            resp = await self.bot.async_client.room_send(
+                room_id=self.room.room_id,
+                message_type="m.room.message",
+                content=content,
             )
+            if not isinstance(resp, RoomSendResponse):
+                logger.error(f"Failed to send message: {resp}")
+                return
+
+            user.pay_reminder_mention_event_id = resp.event_id
+
         logger.info(
-            f"Pay reminder sent to {[user.username for user in not_payed_users]}"
+            "Pay reminder sent to the following users:\n"
+            + "\n".join([f"- {user.username}" for user in not_payed_users])
         )
 
     async def reopen_poll(self) -> None:

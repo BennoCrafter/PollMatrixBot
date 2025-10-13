@@ -1,8 +1,9 @@
 from typing import Optional
-
+from collections import deque
+import random
 from src.command_structure import CommandStructure
 from src.bot_instance import get_bot
-from src.poll import Poll
+from src.poll import Poll, PollStatus
 from src.utils.logging_config import setup_logger
 from src.utils.get_quantity_number import get_quantity_number
 import simplematrixbotlib as botlib
@@ -21,28 +22,33 @@ class PollManager:
     def __init__(self):
         logger.info("Initializing PollManager")
         self.bot = get_bot()
-        self.active_polls = []
-        self.last_poll: Optional[Poll] = None
+        self.recent_polls: deque[Poll] = deque(maxlen=10)
 
         # todo: load config
         self.config = load_config("assets/config.yaml")
 
         self.message_reactor = MessageReactor(self.config)
 
-    async def close_poll(self, poll: Poll):
-        await poll.close_poll()
-
-        self.last_poll = poll
-        self.active_polls.remove(poll)
-
-    async def reopen_poll(self):
-        if self.last_poll is None:
+    async def reopen_poll(self, message_match: botlib.MessageMatch):
+        if not self.recent_polls:
             logger.warning("No poll to reopen")
             return
-        await self.last_poll.reopen_poll()
-        self.active_polls.append(self.last_poll)
 
-        self.last_poll = None
+        # last poll with matching room id
+        last_poll = None
+
+        for poll in reversed(self.recent_polls):
+            if poll.room.room_id == message_match.room.room_id:
+                last_poll = poll
+                break
+
+        if last_poll is None:
+            logger.warning(
+                f"No recent poll found in room {message_match.room.room_id} to reopen."
+            )
+            return
+
+        await last_poll.reopen_poll()
 
     async def create_poll(self, structure: CommandStructure):
         """
@@ -56,7 +62,7 @@ class PollManager:
         """
         title = structure.args_string
         if title is None:
-            logger.warn("Poll needs at least one option (title)")
+            logger.warning("Poll needs at least one option (title)")
             await self.message_reactor.error(
                 structure.match.room.room_id, structure.match.event
             )
@@ -64,26 +70,33 @@ class PollManager:
 
         p = self.get_active_poll(structure.match.room.room_id)
         if p is not None:
-            await self.close_poll(p)
+            await p.close_poll()
 
         poll = Poll(
-            id=len(self.active_polls),
+            id=random.randint(1, 1000000),
             name=title,
             room=structure.match.room,
             item_entries=[],
         )
 
-        self.active_polls.append(poll)
+        # self.active_polls.append(poll)
+        self.recent_polls.append(poll)
         logger.info(f"Poll created: {poll}")
         await poll.list_items(structure.match.room.room_id)
 
     def get_active_poll(self, room_id: str) -> Optional[Poll]:
         """Retrieve the active poll in the given room, if any."""
-        for poll in self.active_polls:
-            if poll.room.room_id == room_id:
+        for poll in reversed(self.recent_polls):
+            if poll.room.room_id == room_id and poll.status == PollStatus.OPEN:
                 return poll
 
         return None
+
+    def get_recent_poll(self, room_id: str) -> Optional[Poll]:
+        """Retrieve the most recent poll in the given room, if any. This means the poll can be active or closed."""
+        for poll in reversed(self.recent_polls):
+            if poll.room.room_id == room_id:
+                return poll
 
     async def process_message_items(self, body_msg: str) -> list[tuple[int, str]]:
         """Process message text into list of quantity/item pairs. Returns for example: [(2, 'apple'), (3, 'banana')]"""
@@ -153,5 +166,6 @@ class PollManager:
         if poll is None:
             return False
 
-        await self.close_poll(poll)
+        await poll.close_poll()
+
         return True

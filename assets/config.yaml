@@ -9,7 +9,7 @@ default_quantity_number: 1 # the default quantity number used when adding items 
 paying_feature: # allows users to react to the poll summary message after it has been closed. Paid users react with an emoji, while unpaid users receive after x time a reminder to pay.
   enabled: true # whether to enable the paying feature
   emoji: "💸" # the emoji which needs to be used to confirm payment to closed poll summary message
-  reminder_delay: "10s" # The time after which unpaid users will be reminded to pay.  Use a duration like "30m", "1h", "24h", "7d".
+  reminder_delay: "1h" # The time after which unpaid users will be reminded to pay.  Use a duration like "30m", "1h", "24h", "7d".
 
 reactions:
   enabled: true # whether to enable reactions
