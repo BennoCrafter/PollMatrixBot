@@ -1,5 +1,4 @@
 from src.user import User
-from typing import Optional
 
 
 class ItemEntry:

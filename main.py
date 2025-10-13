@@ -1,6 +1,4 @@
 import asyncio
-from typing import Optional
-from src.poll import Poll
 from src.bot_instance import get_bot, initialize_bot
 from pathlib import Path
 from dotenv import load_dotenv
