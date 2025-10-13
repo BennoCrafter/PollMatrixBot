@@ -102,6 +102,29 @@ class Poll:
         if not paying_feature.get("enabled", False):
             return
 
+        # pay reminder feature
+        pay_emoji: str = paying_feature.get("emoji", "💸")
+        if paying_feature.get("auto_send_emoji", True):
+            poll_summary_event_id = self.status_messages[-1].get("event_id")
+            if poll_summary_event_id:
+                content = {
+                    "m.relates_to": {
+                        "event_id": poll_summary_event_id,
+                        "key": pay_emoji,
+                        "rel_type": "m.annotation",
+                    }
+                }
+
+                resp = await self.bot.async_client.room_send(
+                    room_id=self.room.room_id,
+                    message_type="m.reaction",
+                    content=content,
+                )
+
+                if not isinstance(resp, RoomSendResponse):
+                    logger.error(f"Failed to send message: {resp}")
+                    return
+
         reminder_delay = paying_feature.get("reminder_delay", "1h")
         reminder_delay_timedelta = parse_time(reminder_delay)
         if reminder_delay_timedelta is None:
