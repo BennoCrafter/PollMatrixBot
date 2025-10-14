@@ -52,10 +52,6 @@ async def on_reaction(room: MatrixRoom, event: ReactionEvent, reaction: str) -> 
     if event.sender == bot.async_client.user:
         return
 
-    logger.info(
-        f"Received from user {event.sender} reaction: {reaction} --> reacts to event id {event.reacts_to}"
-    )
-
     # payment reminder
 
     p = poll_manager.get_last_closed_poll(room.room_id)
