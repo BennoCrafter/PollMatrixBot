@@ -9,6 +9,10 @@ class User:
         self.has_payed: bool = False
         # event id where user got mentioned to pay
         self.pay_reminder_mention_event_id: Optional[str] = None
+        # has payed reaction event id
+        self.pay_reaction_event_id: Optional[str] = None
+        # event id where user got bashed after trying to avoid paying
+        self.pay_bash_event_id: Optional[str] = None
 
     async def display_name(self) -> str:
         return await get_sender_name(self.username)

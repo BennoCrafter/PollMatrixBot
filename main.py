@@ -1,4 +1,6 @@
 import asyncio
+import random
+from nio.events import RedactionEvent
 from src.bot_instance import get_bot, initialize_bot
 from pathlib import Path
 from dotenv import load_dotenv
@@ -59,7 +61,6 @@ async def on_reaction(room: MatrixRoom, event: ReactionEvent, reaction: str) -> 
 
     p = poll_manager.get_last_closed_poll(room.room_id)
     if p is None:
-        logger.info(f"No active poll found in room {room.room_id}")
         return
 
     poll_summary_message_event_id = p.status_messages[-1]
@@ -70,7 +71,23 @@ async def on_reaction(room: MatrixRoom, event: ReactionEvent, reaction: str) -> 
         "paying_feature", {}
     ).get("emoji", "💸"):
         logger.info(f"Payment received from user {event.sender}")
-        await p.add_payment_for_user(event.sender)
+        await p.add_payment_for_user(event.sender, event.event_id)
+
+
+@bot.listener.on_custom_event(RedactionEvent)  # type: ignore
+async def on_redaction(room: MatrixRoom, event: RedactionEvent) -> None:
+    # payment reminder
+
+    p = poll_manager.get_last_closed_poll(room.room_id)
+    if p is None:
+        return
+
+    for user in p.involved_users:
+        if user.pay_reaction_event_id == event.redacts:
+            # user removed payment reaction bash him for it
+            logger.info(f"Payment removed for user {user.username}")
+            await p.bash_user_for_not_paying(user.username)
+            return
 
 
 async def handle_message(match: botlib.MessageMatch, config):

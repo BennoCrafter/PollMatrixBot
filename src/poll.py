@@ -1,6 +1,6 @@
 from src.item import ItemEntry
 from src.user import User
-
+import random
 from nio import MatrixRoom
 from nio.responses import RoomSendResponse
 from src.bot_instance import get_bot
@@ -255,10 +255,11 @@ class Poll:
     def sorted_entries(self) -> list[ItemEntry]:
         return sorted(self.item_entries, key=lambda x: x.name)
 
-    async def add_payment_for_user(self, username: str):
+    async def add_payment_for_user(self, username: str, pay_reaction_event_id: str):
         if self.is_username_involved(username):
             user = self.username_to_user(username)
             user.has_payed = True
+            user.pay_reaction_event_id = pay_reaction_event_id
 
             if user.pay_reminder_mention_event_id is not None:
                 # user didnt pay on time
@@ -266,8 +267,62 @@ class Poll:
                 await self.bot.api.redact(
                     self.room.room_id, user.pay_reminder_mention_event_id
                 )
+
+            if user.pay_bash_event_id is not None:
+                # delete bash message
+                await self.bot.api.redact(self.room.room_id, user.pay_bash_event_id)
+                user.pay_bash_event_id = None
+
         else:
             # user who reacted to poll hadnt even added something to the poll
+            return
+
+    async def remove_payment_for_user(self, username: str):
+        if self.is_username_involved(username):
+            user = self.username_to_user(username)
+            user.has_payed = False
+            user.pay_reaction_event_id = None
+        else:
+            # user who reacted to poll hadnt even added something to the poll
+            return
+
+    async def bash_user_for_not_paying(self, username: str):
+        if self.is_username_involved(username):
+            user = self.username_to_user(username)
+            user.has_payed = False
+
+            reply = random.choice(
+                [
+                    "You can’t get around paying.",
+                    "You can’t dodge the payment.",
+                    "Nice try, but the bill always finds you.",
+                    "You can run, but you can’t hide from the payment.",
+                ]
+            )
+
+            display_name = await user.display_name()
+            content = {
+                "msgtype": "m.text",
+                "body": f"{reply} {display_name}",
+            }
+
+            resp = await self.bot.async_client.room_send(
+                room_id=self.room.room_id,
+                message_type="m.room.message",
+                content=content,
+            )
+
+            if not isinstance(resp, RoomSendResponse):
+                logger.error(f"Failed to send message: {resp}")
+                return
+
+            user.pay_bash_event_id = resp.event_id
+
+            await self.remove_payment_for_user(user.username)
+
+        else:
+            # user who reacted to poll hadnt even added something to the poll
+            # this case shouldt happen. checked before in on redact
             return
 
     def __str__(self) -> str:
