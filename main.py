@@ -1,5 +1,4 @@
 import asyncio
-import random
 from nio.events import RedactionEvent
 from src.bot_instance import get_bot, initialize_bot
 from pathlib import Path
