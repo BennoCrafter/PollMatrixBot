@@ -98,6 +98,12 @@ class PollManager:
             if poll.room.room_id == room_id:
                 return poll
 
+    def get_last_closed_poll(self, room_id: str) -> Optional[Poll]:
+        """Retrieve the most recent closed poll in the given room, if any."""
+        for poll in reversed(self.recent_polls):
+            if poll.room.room_id == room_id and poll.status == PollStatus.CLOSED:
+                return poll
+
     async def process_message_items(self, body_msg: str) -> list[tuple[int, str]]:
         """Process message text into list of quantity/item pairs. Returns for example: [(2, 'apple'), (3, 'banana')]"""
         items = []

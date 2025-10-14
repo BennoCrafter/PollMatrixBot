@@ -57,7 +57,7 @@ async def on_reaction(room: MatrixRoom, event: ReactionEvent, reaction: str) -> 
 
     # payment reminder
 
-    p = poll_manager.get_recent_poll(room.room_id)
+    p = poll_manager.get_last_closed_poll(room.room_id)
     if p is None:
         logger.info(f"No active poll found in room {room.room_id}")
         return
