@@ -149,7 +149,17 @@ class Poll:
             display_name = await user.display_name()
             content = {
                 "msgtype": "m.text",
-                "body": f"Oh no! {display_name} hasn't paid yet!",
+                "body": (
+                    random.choice(
+                        [
+                            "Hey %s! Why not paying?",
+                            "Hey %s! Better watch out, next time you will need to take the orders...",
+                            "Ordering but not paying? Boooh %s!",
+                            "One blame for %s! Did not payed until now.",
+                        ]
+                    )
+                    % display_name
+                ),
             }
 
             resp = await self.bot.async_client.room_send(
