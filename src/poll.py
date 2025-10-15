@@ -90,15 +90,29 @@ class Poll:
         ):
             return False
 
-        if item_entry:
-            item_entry.decrease(user, count)
-            if item_entry.get_total_count() == 0:
-                await self.remove_item(item_entry)
-            await self.update_status_messages()
-            return True
-        else:
-            logger.warn(f"Could not find item '{item_name}' in poll '{self.name}'")
+        if item_entry is None:
+            logger.warning(f"Could not find item '{item_name}' in poll '{self.name}'")
             return False
+
+        item_entry.decrease(user, count)
+
+        if item_entry.get_total_count() == 0:
+            await self.remove_item(item_entry)
+
+        # Check if user is still involved, if not remove him from the list
+        user_still_involved = False
+        for entry in self.item_entries:
+            if entry.contains_user(user):
+                user_still_involved = True
+                break
+
+        if not user_still_involved:
+            self.involved_users = [
+                u for u in self.involved_users if u.username != username
+            ]
+
+        await self.update_status_messages()
+        return True
 
     def username_to_user(self, username: str) -> User:
         """Returns the user with the given username, or creates a new one if it doesn't exist."""
