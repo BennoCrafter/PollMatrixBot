@@ -31,6 +31,8 @@ class Poll:
         self.room: MatrixRoom = room
         self.item_entries: list[ItemEntry] = item_entries
         self.involved_users: list[User] = []
+
+        self.passive_participants: list[User] = []
         #  List of the !status messages, where all event ids are listed
         self.status_messages: list[str] = []
 
@@ -52,6 +54,17 @@ class Poll:
             self.item_entries.append(ItemEntry(item_name, [(user, count)]))
 
         await self.update_status_messages()
+
+    async def add_passive_participant(self, username: str) -> None:
+        if self.username_in_passive_participants(username):
+            return
+
+        user = self.username_to_user(username)
+        self.passive_participants.append(user)
+        await self.update_status_messages()
+
+    def username_in_passive_participants(self, username: str) -> bool:
+        return any(user.username == username for user in self.passive_participants)
 
     async def remove_response(self, item_name: str, username: str, count: int) -> bool:
         if not self.is_username_involved(username):
@@ -260,7 +273,20 @@ class Poll:
 
         for item_entry in self.sorted_entries():
             r += f"- {item_entry.get_total_count()}x {item_entry.name} ({await item_entry.format_users()})\n"
+
+        # add passive users
+        if self.passive_participants:
+            r += "\n---\n"
+            r += f"Passive Users: {await self.format_passive_users()}\n"
         return r
+
+    async def format_passive_users(self) -> str:
+        return ", ".join(
+            [
+                f"`{await user.formatted_display_name()}`"
+                for user in self.passive_participants
+            ]
+        )
 
     def sorted_entries(self) -> list[ItemEntry]:
         return sorted(self.item_entries, key=lambda x: x.name)
