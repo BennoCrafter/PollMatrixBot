@@ -12,4 +12,13 @@ class ReopenPollCommand(Command):
         super().__init__(trigger_names)
 
     async def execute(self, structure: CommandStructure, **kwargs) -> None:
-        await self.poll_manager.reopen_poll(structure.match)
+        if not self.poll_manager.recent_polls:
+            return
+
+        # last poll with matching room id
+        last_poll = self.poll_manager.get_last_closed_poll(structure.match.room.room_id)
+
+        if last_poll is None:
+            return
+
+        await last_poll.reopen_poll()
