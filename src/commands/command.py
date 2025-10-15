@@ -3,7 +3,7 @@ from src.command_structure import CommandStructure
 from src.utils.load_config import load_config
 from src.bot_instance import get_bot
 from src.poll_manager import PollManager
-from src.utils.logging_config import setup_logger
+
 
 class Command(ABC):
     def __init__(self, trigger_names: list[str]) -> None:
@@ -13,8 +13,7 @@ class Command(ABC):
         self.config = load_config("assets/config.yaml")
         self.bot = get_bot()
         self.poll_manager = PollManager()
-        self.logger = setup_logger(__name__)
-        self.prefix = self.config.get('command_prefix', '!')
+        self.prefix = self.config.get("command_prefix", "!")
 
     def matches(self, command_structure: CommandStructure) -> bool:
         if command_structure.command in self.trigger_names:

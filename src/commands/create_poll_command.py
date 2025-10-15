@@ -2,6 +2,9 @@ import random
 from src.commands.command import Command
 from src.command_structure import CommandStructure
 from src.poll import Poll
+from src.utils.logging_config import setup_logger
+
+logger = setup_logger(__name__)
 
 
 class CreatePollCommand(Command):
@@ -17,7 +20,7 @@ class CreatePollCommand(Command):
         title = structure.args_string
 
         if title is None:
-            self.logger.warning("Poll needs at least one option (title)")
+            logger.warning("Poll needs at least one option (title)")
             await self.poll_manager.message_reactor.error(
                 structure.match.room.room_id, structure.match.event
             )
@@ -35,5 +38,5 @@ class CreatePollCommand(Command):
         )
 
         self.poll_manager.recent_polls.append(poll)
-        self.logger.info(f"Poll created: {poll}")
+        logger.info(f"Poll created: {poll}")
         await poll.list_items(structure.match.room.room_id)

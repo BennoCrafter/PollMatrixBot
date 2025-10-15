@@ -1,6 +1,9 @@
 import random
 from src.commands.command import Command
 from src.command_structure import CommandStructure
+from src.utils.logging_config import setup_logger
+
+logger = setup_logger(__name__)
 
 
 class AddCommand(Command):
@@ -28,7 +31,7 @@ class AddCommand(Command):
 
         for count, item_name in items:
             await poll.add_response(item_name, structure.match.event.sender, count)
-            self.logger.debug(f"Added item '{item_name}' with quantity {count}")
+            logger.debug(f"Added item '{item_name}' with quantity {count}")
 
         await self.poll_manager.message_reactor.success(
             structure.match.room.room_id, structure.match.event

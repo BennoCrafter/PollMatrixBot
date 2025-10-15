@@ -1,5 +1,8 @@
 from src.commands.command import Command
 from src.command_structure import CommandStructure
+from src.utils.logging_config import setup_logger
+
+logger = setup_logger(__name__)
 
 
 class RemoveItemCommand(Command):
@@ -37,4 +40,4 @@ class RemoveItemCommand(Command):
             await self.poll_manager.message_reactor.removed(
                 structure.match.room.room_id, structure.match.event
             )
-            self.logger.debug(f"Removed item '{item_name}' with quantity {count}")
+            logger.debug(f"Removed item '{item_name}' with quantity {count}")
