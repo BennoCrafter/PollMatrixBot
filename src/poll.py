@@ -56,7 +56,17 @@ class Poll:
         await self.update_status_messages()
 
     async def add_passive_participant(self, username: str) -> None:
+        if self.is_username_involved(username):
+            # user is already involved in the poll so he cant be a passive participant
+            # I already know guys, that you will try bypassing it, but you cant
+            await self.bot.api.send_text_message(
+                self.room.room_id,
+                "Nice try 😉! But this won't work! You already added something to the poll.",
+            )
+            return
+
         if self.username_in_passive_participants(username):
+            # when already triggerd no answer command return
             return
 
         user = self.username_to_user(username)
@@ -197,6 +207,7 @@ class Poll:
                 self.room.room_id, "Poll is already open"
             )
             return
+
         self.status = PollStatus.OPEN
         await self.delete_close_summary(self.room.room_id, self.status_messages[-1])
         await self.list_items(self.room.room_id)
