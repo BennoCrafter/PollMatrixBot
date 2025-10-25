@@ -44,7 +44,7 @@ class Poll:
         self.pay_reminder_scheduler.start()
         self.pay_reminder_job_id: Any | None = None
 
-    async def add_response(self, item_name: str, username: str, count: int) -> None:
+    async def add_response(self, item_name: str, username: str, count: int):
         user = self.username_to_user(username)
         item_entry = self.get_item(item_name)
 
@@ -54,6 +54,7 @@ class Poll:
             self.item_entries.append(ItemEntry(item_name, [(user, count)]))
 
         await self.update_status_messages()
+        return
 
     async def add_passive_participant(self, username: str) -> None:
         if self.is_username_involved(username):
