@@ -66,10 +66,10 @@ class Poll:
             return
 
         if self.username_in_passive_participants(username):
-            # when already triggerd no answer command return
+            # when already triggered no answer command return
             return
 
-        user = self.username_to_user(username)
+        user = User(username)
         self.passive_participants.append(user)
         await self.update_status_messages()
 

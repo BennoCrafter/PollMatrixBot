@@ -3,26 +3,53 @@
 </p>
 
 <div align="center">
-    <h1>Poll Matrixbot</h1>
+  <h1>🍽️ Poll Matrixbot</h1>
 
   **A handy bot for creating and managing polls in Matrix rooms.**
 
-
-   [![Stars](https://img.shields.io/github/stars/BennoCrafter/PollMatrixBot?style=social)](https://github.com/BennoCrafter/PollMatrixBot)
-   [![Forks](https://img.shields.io/github/forks/BennoCrafter/PollMatrixBot?style=social)](https://github.com/BennoCrafter/PollMatrixBot)
-   [![Open Issues](https://img.shields.io/github/issues/BennoCrafter/PollMatrixBot)](https://github.com/BennoCrafter/PollMatrixBot/issues)
-   [![Last Updated](https://img.shields.io/github/last-commit/BennoCrafter/PollMatrixBot)](https://github.com/BennoCrafter/PollMatrixBot/commits/main)
-   [![simplematrixbotlib][simplematrixbotlib]][simplematrixbotlib-url]
+  [![Stars](https://img.shields.io/github/stars/BennoCrafter/PollMatrixBot?style=social)](https://github.com/BennoCrafter/PollMatrixBot)
+  [![Forks](https://img.shields.io/github/forks/BennoCrafter/PollMatrixBot?style=social)](https://github.com/BennoCrafter/PollMatrixBot)
+  [![Open Issues](https://img.shields.io/github/issues/BennoCrafter/PollMatrixBot)](https://github.com/BennoCrafter/PollMatrixBot/issues)
+  [![Last Updated](https://img.shields.io/github/last-commit/BennoCrafter/PollMatrixBot)](https://github.com/BennoCrafter/PollMatrixBot/commits/main)
+  [![simplematrixbotlib][simplematrixbotlib]][simplematrixbotlib-url]
 </div>
 
-## Features
+---
 
-* **!create <title>:** Create a new poll with the specified title.
-* **!close:** Close the current poll.
-* **!remove <item>:** Remove the given item from the poll.
-* **!list:** List all items currently in the poll.
-* **!add <item>:** Add a new item to the poll (if enabled in the configuration).
-* **!help:** Display the help message with available commands.
+## 🧭 Overview
+
+Poll Matrixbot (a.k.a. *Lunchy*) is your go-to Matrix companion for running quick polls with friends or teams — perfect for deciding lunch spots, event options, or anything else that needs a quick group decision.
+
+Built on top of [`simplematrixbotlib`](https://codeberg.org/imbev/simplematrixbotlib), it’s lightweight, fast, and easy to deploy.
+
+---
+
+## ✨ Features
+
+- 🗳️ Create and manage polls directly from your Matrix room
+- ➕ Add or remove items in real time
+- 🚫 Opt out of polls when you’re not joining
+- 🔒 Close and reopen polls easily
+- 📋 Check poll status anytime
+- 🧰 Simple setup with Docker or Python
+
+---
+
+## 💬 Commands
+
+| Command | Description | Example |
+|----------|--------------|----------|
+| `!lunchy <name>` | Start a new poll | `!lunchy Pizza Day` |
+| `!lunchy <quantity>x <item>` | Add an item to the poll | `!lunchy 2x Pepperoni Pizza` |
+| `!remove <quantity>x <item>` | Remove an item from the poll | `!remove 1x Garlic Bread` |
+| `!status` | Show all items currently in the poll | `!status` |
+| `!lunchy no` | Mark that you’re not joining the poll | `!lunchy no` |
+| `!close` | Close the active poll | `!close` |
+| `!reopen` | Reopen the most recently closed poll | `!reopen` |
+| `!releasenotes` | View the bot’s latest release notes | `!releasenotes` |
+| `!help` | Display all available commands | `!help` |
+
+---
 
 ## Installation
 

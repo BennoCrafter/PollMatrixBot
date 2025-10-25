@@ -27,6 +27,12 @@ class AddCommand(Command):
             )
             return
 
+        if structure.args_string in self.config.get("commands", []).get(
+            "no_answer_command", []
+        ):
+            await poll.add_passive_participant(structure.match.event.sender)
+            return
+
         items = await self.poll_manager.process_message_items(structure.args_string)
 
         for count, item_name in items:
@@ -43,3 +49,4 @@ class AddCommand(Command):
                 structure.match.room.room_id,
                 random.choice(["Yummy! 😋", "Pineapple perfection! 🍍", "Aloha! 🏝️"]),
             )
+            return
