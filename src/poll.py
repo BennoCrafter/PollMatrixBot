@@ -74,6 +74,14 @@ class Poll:
         self.passive_participants.append(user)
         await self.update_status_messages()
 
+    async def remove_passive_participant(self, username: str) -> None:
+        if self.username_in_passive_participants(username):
+            for user in self.passive_participants:
+                if user.username == username:
+                    self.passive_participants.remove(user)
+                    break
+            await self.update_status_messages()
+
     def username_in_passive_participants(self, username: str) -> bool:
         return any(user.username == username for user in self.passive_participants)
 
