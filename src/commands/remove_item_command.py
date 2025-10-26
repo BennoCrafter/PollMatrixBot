@@ -1,6 +1,9 @@
+import random
+
 from src.commands.command import Command
 from src.command_structure import CommandStructure
 from src.utils.logging_config import setup_logger
+from src.const import hawaii_remove_responses
 
 logger = setup_logger(__name__)
 
@@ -14,6 +17,7 @@ class RemoveItemCommand(Command):
         super().__init__(trigger_names)
 
     async def execute(self, structure: CommandStructure, **kwargs) -> None:
+        await self.check_triggers(structure)
         poll = self.poll_manager.get_active_poll(structure.match.room.room_id)
 
         if not poll or structure.args_string is None:
@@ -47,3 +51,11 @@ class RemoveItemCommand(Command):
                 structure.match.room.room_id, structure.match.event
             )
             logger.debug(f"Removed item '{item_name}' with quantity {count}")
+
+    async def check_triggers(self, structure: CommandStructure):
+        if structure.args_string and "hawaii" in structure.args_string.lower():
+            await self.bot.api.send_text_message(
+                structure.match.room.room_id,
+                random.choice(hawaii_remove_responses),
+            )
+            return

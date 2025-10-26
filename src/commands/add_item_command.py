@@ -2,6 +2,7 @@ import random
 from src.commands.command import Command
 from src.command_structure import CommandStructure
 from src.utils.logging_config import setup_logger
+from src.const import hawaii_add_responses
 
 logger = setup_logger(__name__)
 
@@ -57,6 +58,6 @@ class AddCommand(Command):
         if structure.args_string and "hawaii" in structure.args_string.lower():
             await self.bot.api.send_text_message(
                 structure.match.room.room_id,
-                random.choice(["Yummy! 😋", "Pineapple perfection! 🍍", "Aloha! 🏝️"]),
+                random.choice(hawaii_add_responses),
             )
             return
