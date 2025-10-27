@@ -3,7 +3,7 @@ from src.user import User
 import random
 from nio import MatrixRoom
 from nio.responses import RoomSendResponse
-from src.bot_instance import get_bot
+from src.globals_instance import get_bot
 from src.utils.logging_config import setup_logger
 import markdown
 from typing import Any, Optional

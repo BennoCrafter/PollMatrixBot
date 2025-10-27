@@ -2,3 +2,4 @@ simplematrixbotlib==2.12.0
 python-dotenv
 pyyaml
 apscheduler
+openai

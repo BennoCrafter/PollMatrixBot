@@ -1,7 +1,8 @@
 from src.utils.logging_config import setup_logger
-from src.bot_instance import get_bot
+from src.globals_instance import get_bot
 from nio.events import Event
 from src.utils.singleton import singleton
+
 
 @singleton
 class MessageReactor:
@@ -14,11 +15,12 @@ class MessageReactor:
         self.logger = setup_logger(__name__)
 
     def is_reaction_enabled(self, reaction_type):
-        return self.enabled and self.reactions.get("types", {}).get(reaction_type, {}).get("enabled", True)
+        return self.enabled and self.reactions.get("types", {}).get(
+            reaction_type, {}
+        ).get("enabled", True)
 
     def get_reaction_emoji(self, reaction_type) -> str | None:
         return self.reactions.get("types", {}).get(reaction_type, {}).get("emoji", None)
-
 
     async def react(self, room_id: str, event: Event, reaction_type: str):
         if not self.is_reaction_enabled(reaction_type):

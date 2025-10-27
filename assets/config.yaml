@@ -5,6 +5,7 @@ delete_session_file_on_start: true
 use_add_command: true # whether to use the add command to add items to the poll or adding every captured message to the poll
 prefix: "!" # the prefix used to trigger commands
 default_quantity_number: 1 # the default quantity number used when adding items to the poll
+openai_model: "llama3.2"
 
 paying_feature: # allows users to react to the poll summary message after it has been closed. Paid users react with an emoji, while unpaid users receive after x time a reminder to pay.
   enabled: true # whether to enable the paying feature

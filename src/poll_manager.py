@@ -1,6 +1,6 @@
 from typing import Optional
 from collections import deque
-from src.bot_instance import get_bot
+from src.globals_instance import get_bot
 from src.poll import Poll, PollStatus
 from src.utils.logging_config import setup_logger
 from src.utils.get_quantity_number import get_quantity_number

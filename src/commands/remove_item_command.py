@@ -4,6 +4,9 @@ from src.commands.command import Command
 from src.command_structure import CommandStructure
 from src.utils.logging_config import setup_logger
 from src.const import hawaii_remove_responses
+import asyncio
+from src.utils.pineapple_detection import predict_pineapple
+
 
 logger = setup_logger(__name__)
 
@@ -53,9 +56,22 @@ class RemoveItemCommand(Command):
             logger.debug(f"Removed item '{item_name}' with quantity {count}")
 
     async def check_triggers(self, structure: CommandStructure):
-        if structure.args_string and "hawaii" in structure.args_string.lower():
-            await self.bot.api.send_text_message(
-                structure.match.room.room_id,
-                random.choice(hawaii_remove_responses),
-            )
+        if structure.args_string is None:
             return
+
+        asyncio.create_task(self._check_pineapple_async(structure))
+
+    async def _check_pineapple_async(self, structure: CommandStructure):
+        try:
+            if await predict_pineapple(
+                self.openAI_client,
+                self.config.get("openai_model", ""),
+                structure.args_string,
+            ):
+                logger.info(f"Detected pineapple in '{structure.args_string}'")
+                await self.bot.api.send_text_message(
+                    structure.match.room.room_id,
+                    random.choice(hawaii_remove_responses),
+                )
+        except Exception as e:
+            logger.error(f"Error during pineapple detection: {e}")

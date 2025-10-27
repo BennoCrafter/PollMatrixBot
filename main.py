@@ -1,6 +1,6 @@
 import asyncio
 from nio.events import RedactionEvent
-from src.bot_instance import get_bot, initialize_bot
+from src.globals_instance import get_bot, initialize_globals
 from pathlib import Path
 from dotenv import load_dotenv
 from nio.events.room_events import ReactionEvent, RoomMessageText
@@ -30,7 +30,7 @@ if session_file_path.exists() and config.get("delete_session_file_on_start"):
 PREFIX = config["prefix"]
 
 # init bot instance
-initialize_bot()
+initialize_globals()
 bot = get_bot()
 
 
