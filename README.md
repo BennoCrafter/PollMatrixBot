@@ -18,9 +18,7 @@
 
 ## 🧭 Overview
 
-Poll Matrixbot (a.k.a. *Lunchy*) is your go-to Matrix companion for running quick polls with friends or teams — perfect for deciding lunch spots, event options, or anything else that needs a quick group decision.
-
-Built on top of [`simplematrixbotlib`](https://codeberg.org/imbev/simplematrixbotlib), it’s lightweight, fast, and easy to deploy.
+Poll Matrixbot (a.k.a. *Lunchy*) is your perfect Matrix bot for running polls with friends or teams — perfect for deciding lunch spots or anything else that needs a quick team decision.
 
 ---
 
@@ -101,6 +99,8 @@ USERNAME=your-matrix-username
 PASSWORD=your-matrix-password
 ACCESS_TOKEN=your-matrix-access-token
 ```
+
+or have a look at ```.env.example```
 
 Use password or access token to authenticate
 
