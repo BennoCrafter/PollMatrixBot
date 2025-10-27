@@ -1,6 +1,5 @@
 from openai import AsyncOpenAI
 from typing import Optional
-import asyncio
 from src.utils.logging_config import setup_logger
 
 logger = setup_logger(__name__)
