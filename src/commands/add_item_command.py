@@ -37,14 +37,11 @@ class AddCommand(Command):
             await poll.add_passive_participant(structure.match.event.sender)
             return
 
-        # dont allow adding active participant if hes already in passive
+        # if hes a passive participant remove him from passive and add him as active
         if structure.match.event.sender in map(
             lambda x: x.username, poll.passive_participants
         ):
-            await self.poll_manager.message_reactor.error(
-                structure.match.room.room_id, structure.match.event
-            )
-            return
+            await poll.remove_passive_participant(structure.match.event.sender)
 
         items = await self.poll_manager.process_message_items(structure.args_string)
 
