@@ -201,7 +201,7 @@ class Poll:
                             "Hey %s! Why not paying?",
                             "Hey %s! Better watch out, next time you will need to take the orders...",
                             "Ordering but not paying? Boooh %s!",
-                            "One blame for %s! Did not payed until now.",
+                            "One blame for %s! Did not pay until now.",
                         ]
                     )
                     % display_name
