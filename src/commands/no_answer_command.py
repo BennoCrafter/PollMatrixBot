@@ -4,7 +4,7 @@ from src.command_structure import CommandStructure
 
 class NoAnswerCommand(Command):
     """
-    **No Answer**: Use the `!no` command to indicate that you won't be joining the poll.
+    **No Answer**: Use the `!no` (or use different aliases like: `!nix`) command to indicate that you won't be joining the poll.
     """
 
     def __init__(self, trigger_names: list[str]) -> None:
