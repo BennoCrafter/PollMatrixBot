@@ -307,19 +307,18 @@ class Poll:
         for item_entry in self.sorted_entries():
             r += f"- {item_entry.get_total_count()}x {item_entry.name} ({await item_entry.format_users()})\n"
 
-        # add passive users
+        # show list of passive users
         if self.passive_participants:
             r += "\n---\n"
-            r += f"Passive Users: {await self.format_passive_users()}\n"
+            r += f"Passive Users: {await self.format_users(self.passive_participants)} ({len(self.passive_participants)})\n"
+        # show list of involved users
+        if self.involved_users:
+            r += "\n---\n"
+            r += f"Active Users: {await self.format_users(self.involved_users)} ({len(self.involved_users)})\n"
         return r
 
-    async def format_passive_users(self) -> str:
-        return ", ".join(
-            [
-                f"`{await user.formatted_display_name()}`"
-                for user in self.passive_participants
-            ]
-        )
+    async def format_users(self, users: list[User]) -> str:
+        return ", ".join([f"`{await user.formatted_display_name()}`" for user in users])
 
     def sorted_entries(self) -> list[ItemEntry]:
         return sorted(self.item_entries, key=lambda x: x.name)
