@@ -1,10 +1,9 @@
 from typing import Optional
 from collections import deque
-from src.globals_instance import get_bot
+from src.globals_instance import get_bot, get_config
 from src.poll import Poll, PollStatus
 from src.utils.logging_config import setup_logger
 from src.utils.get_quantity_number import get_quantity_number
-from src.utils.load_config import load_config
 from src.message_reactor import MessageReactor
 
 from src.utils.singleton import singleton
@@ -21,7 +20,7 @@ class PollManager:
         self.recent_polls: deque[Poll] = deque(maxlen=10)
 
         # todo: load config
-        self.config = load_config("assets/config.yaml")
+        self.config = get_config()
 
         self.message_reactor = MessageReactor(self.config)
 

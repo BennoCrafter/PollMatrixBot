@@ -1,6 +1,6 @@
 import asyncio
 from nio.events import RedactionEvent
-from src.globals_instance import get_bot, initialize_globals
+from src.globals_instance import get_bot, initialize_globals, get_config
 from pathlib import Path
 from dotenv import load_dotenv
 from nio.events.room_events import ReactionEvent, RoomMessageText
@@ -9,7 +9,6 @@ import simplematrixbotlib as botlib
 from src.command_system import load_commands
 
 from src.commands.command import Command
-from src.utils.load_config import load_config
 from src.utils.logging_config import setup_logger
 from src.utils.once_decorator import once
 from src.poll_manager import PollManager
@@ -18,9 +17,10 @@ from src.command_manager import CommandManager
 # Setup logger
 logger = setup_logger(__name__)
 
-# Load environment variables
 load_dotenv()
-config = load_config("assets/config.yaml")
+initialize_globals()
+
+config = get_config()
 session_file_path = Path(config["session_file"])
 
 # Remove session.txt file if required by configuration
@@ -29,8 +29,6 @@ if session_file_path.exists() and config.get("delete_session_file_on_start"):
 
 PREFIX = config["prefix"]
 
-# init bot instance
-initialize_globals()
 bot = get_bot()
 
 

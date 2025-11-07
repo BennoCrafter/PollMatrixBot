@@ -13,3 +13,4 @@ store
 venv
 .ruff_cache
 .pytest_cache
+config.yaml

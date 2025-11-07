@@ -4,6 +4,8 @@ import os
 from dotenv import load_dotenv
 from src.utils.logging_config import setup_logger
 from typing import Optional
+from src.utils.load_config import load_config
+from pathlib import Path
 
 logger = setup_logger(__name__)
 
@@ -11,10 +13,11 @@ load_dotenv()
 
 bot_instance: Optional[botlib.Bot] = None
 openAI_client: Optional[AsyncOpenAI] = None
+config: Optional[dict] = None
 
 
 def initialize_globals():
-    global bot_instance, openAI_client
+    global bot_instance, openAI_client, config
     if bot_instance is None:
         username = os.getenv("USERNAME")
         password = os.getenv("PASSWORD")
@@ -41,6 +44,15 @@ def initialize_globals():
             api_key=os.getenv("OPENAI_API_KEY"),
             base_url=os.getenv("OPENAI_BASE_URL"),
         )
+
+    if config is None:
+        config = load_config(Path("assets/config.yaml"))
+
+
+def get_config() -> dict:
+    if config is None:
+        raise RuntimeError("Config not initialized!")
+    return config
 
 
 def get_openAI_client() -> AsyncOpenAI:

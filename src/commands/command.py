@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from src.command_structure import CommandStructure
-from src.utils.load_config import load_config
-from src.globals_instance import get_bot, get_openAI_client
+from src.globals_instance import get_bot, get_openAI_client, get_config
 from src.poll_manager import PollManager
 
 
@@ -10,7 +9,7 @@ class Command(ABC):
         self.trigger_names = trigger_names
 
         # constants
-        self.config = load_config("assets/config.yaml")
+        self.config = get_config()
         self.bot = get_bot()
         self.openAI_client = get_openAI_client()
         self.poll_manager = PollManager()

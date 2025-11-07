@@ -3,11 +3,10 @@ from src.user import User
 import random
 from nio import MatrixRoom
 from nio.responses import RoomSendResponse
-from src.globals_instance import get_bot
+from src.globals_instance import get_bot, get_config
 from src.utils.logging_config import setup_logger
 import markdown
 from typing import Any, Optional
-from src.utils.load_config import load_config
 from enum import Enum
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime, timedelta
@@ -38,7 +37,7 @@ class Poll:
 
         self.status: PollStatus = PollStatus.OPEN
         self.bot = get_bot()
-        self.config = load_config("assets/config.yaml")
+        self.config = get_config()
 
         self.pay_reminder_scheduler = AsyncIOScheduler()
         self.pay_reminder_scheduler.start()
