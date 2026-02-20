@@ -1,15 +1,17 @@
-from src.item import ItemEntry
-from src.user import User
 import random
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Optional
+
+import markdown
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from nio import MatrixRoom
 from nio.responses import RoomSendResponse
+
 from src.globals_instance import get_bot, get_config
+from src.item import ItemEntry
+from src.user import User
 from src.utils.logging_config import setup_logger
-import markdown
-from typing import Any, Optional
-from enum import Enum
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from datetime import datetime, timedelta
 from src.utils.parse_time import parse_time
 
 
@@ -42,6 +44,9 @@ class Poll:
         self.pay_reminder_scheduler = AsyncIOScheduler()
         self.pay_reminder_scheduler.start()
         self.pay_reminder_job_id: Any | None = None
+        self.pay_reminder_enabled: bool = self.config.get("paying_feature", {}).get(
+            "enabled", True
+        )
 
     async def add_response(self, item_name: str, username: str, count: int):
         user = self.username_to_user(username)
@@ -143,9 +148,10 @@ class Poll:
         await self.update_status_messages()
         logger.info(f"Poll closed: {self}")
 
-        paying_feature: dict = self.config.get("paying_feature", {})
-        if not paying_feature.get("enabled", False):
+        if not self.pay_reminder_enabled:
             return
+
+        paying_feature: dict = self.config.get("paying_feature", {})
 
         # pay reminder feature
         pay_emoji: str = paying_feature.get("emoji", "💸")
@@ -239,8 +245,7 @@ class Poll:
         if self.pay_reminder_job_id is None:
             return
 
-        self.pay_reminder_scheduler.remove_job(self.pay_reminder_job_id)
-        self.pay_reminder_job_id = None
+        self.stop_pay_reminder()
 
     async def delete_close_summary(self, room_id: str, event_id: str) -> None:
         await self.bot.api.redact(room_id, event_id)
@@ -353,6 +358,11 @@ class Poll:
         else:
             # user who reacted to poll hadnt even added something to the poll
             return
+
+    def stop_pay_reminder(self) -> None:
+        self.pay_reminder_scheduler.remove_job(self.pay_reminder_job_id)
+        self.pay_reminder_job_id = None
+        logger.info("Pay reminder cancelled")
 
     async def bash_user_for_not_paying(self, username: str):
         if self.is_username_involved(username):
