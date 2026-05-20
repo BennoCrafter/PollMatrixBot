@@ -360,8 +360,10 @@ class Poll:
             return
 
     def stop_pay_reminder(self) -> None:
-        self.pay_reminder_scheduler.remove_job(self.pay_reminder_job_id)
-        self.pay_reminder_job_id = None
+        if self.pay_reminder_job_id is not None:
+            self.pay_reminder_scheduler.remove_job(self.pay_reminder_job_id)
+            self.pay_reminder_job_id = None
+
         logger.info("Pay reminder cancelled")
 
     async def bash_user_for_not_paying(self, username: str):
