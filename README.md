@@ -3,7 +3,7 @@
 </p>
 
 <div align="center">
-  <h1>🍽️ Poll Matrixbot</h1>
+  <h1>Poll Matrixbot</h1>
 
   **A handy bot for creating and managing polls in Matrix rooms.**
 
@@ -16,24 +16,24 @@
 
 ---
 
-## 🧭 Overview
+## Overview
 
 Poll Matrixbot (a.k.a. *Lunchy*) is your perfect Matrix bot for running polls with friends or teams — perfect for deciding lunch spots or anything else that needs a quick team decision.
 
 ---
 
-## ✨ Features
+## Features
 
-- 🗳️ Create and manage polls directly from your Matrix room
-- ➕ Add or remove items
-- 🚫 Opt out of polls when you’re not joining
-- 🔒 Close and reopen polls
-- 📋 Check poll status anytime
-- 🧰 Simple setup with Docker or Python
+- Create and manage polls directly from your Matrix room
+- Add or remove items
+- Opt out of polls when you’re not joining
+- Close and reopen polls
+- Check poll status anytime
+- Simple setup with Docker or Python
 
 ---
 
-## 💬 Commands
+## Commands
 
 | Command | Description | Example |
 |----------|--------------|----------|
