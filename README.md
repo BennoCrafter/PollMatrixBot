@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/RoundedIcon.png" width="150" height="150" alt="Lunchy Logo">
+  <img src="assets/icon/icon_round.png" width="150" height="150" alt="Lunchy Logo">
 </p>
 
 <div align="center">
@@ -22,17 +22,6 @@ Poll Matrixbot (a.k.a. *Lunchy*) is your perfect Matrix bot for running polls wi
 
 ---
 
-## Features
-
-- Create and manage polls directly from your Matrix room
-- Add or remove items
-- Opt out of polls when you’re not joining
-- Close and reopen polls
-- Check poll status anytime
-- Simple setup with Docker or Python
-
----
-
 ## Commands
 
 | Command | Description | Example |
@@ -42,6 +31,7 @@ Poll Matrixbot (a.k.a. *Lunchy*) is your perfect Matrix bot for running polls wi
 | `!remove <quantity>x <item>` | Remove an item from the poll | `!remove 1x Garlic Bread` |
 | `!status` | Show all items currently in the poll | `!status` |
 | `!nothing` | Mark that you’re not joining the poll | `!nothing` |
+| `!noblame` | Disable blame message for the pay reminder | `!noblame` |
 | `!close` | Close the active poll | `!close` |
 | `!reopen` | Reopen the most recently closed poll | `!reopen` |
 | `!releasenotes` | View the bot’s latest release notes | `!releasenotes` |
@@ -94,16 +84,22 @@ python main.py
 Create a ```.env``` file in the project's root directory with the following environment variables:
 
 ```makefile
-HOMESERVER=your-matrix-homeserver
-USERNAME=your-matrix-username
-PASSWORD=your-matrix-password
-ACCESS_TOKEN=your-matrix-access-token
+HOMESERVER="" # required
+# use username and password for auth
+USERNAME=""
+PASSWORD=""
+# or using an acess token
+ACCESS_TOKEN=""
+
+# optional openai intergration for ai features
+OPENAI_BASE_URL=""
+OPENAI_API_KEY=""
+
 ```
 
 or have a look at ```.env.example```
 
 Use password or access token to authenticate
-
 
 Configure other things in ```assets/config.yaml```
 
