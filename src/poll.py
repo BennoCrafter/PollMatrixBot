@@ -89,7 +89,13 @@ class Poll:
     def username_in_passive_participants(self, username: str) -> bool:
         return any(user.username == username for user in self.passive_participants)
 
-    async def remove_response(self, item_name: str, username: str, count: int) -> bool:
+    async def remove_response(
+        self, item_name: str, username: str, count: int, send_update: bool = True
+    ) -> bool:
+        """
+        Removes a response from the poll, decreasing the item count for the user and removing the user from the involved users list if they are no longer involved.
+        send_update parameter determines whether to update the status messages after removing the response. Disabled for !removeall command.
+        """
         if not self.is_username_involved(username):
             return False
 
@@ -109,8 +115,21 @@ class Poll:
 
         item_entry.decrease(user, count)
 
+        await self.remove_item_cleanup_routine(
+            item_entry, user, send_update=send_update
+        )
+        if send_update:
+            await self.update_status_messages()
+        return True
+
+    async def remove_item_cleanup_routine(
+        self, item_entry: ItemEntry, user: User, send_update: bool = True
+    ) -> None:
+        """
+        Removes the item entry if the total count is 0, and removes the user from the involved users list if they are no longer involved.
+        """
         if item_entry.get_total_count() == 0:
-            await self.remove_item(item_entry)
+            await self.remove_item(item_entry, send_update=send_update)
 
         # Check if user is still involved, if not remove him from the list
         user_still_involved = False
@@ -121,11 +140,8 @@ class Poll:
 
         if not user_still_involved:
             self.involved_users = [
-                u for u in self.involved_users if u.username != username
+                u for u in self.involved_users if u.username != user.username
             ]
-
-        await self.update_status_messages()
-        return True
 
     def username_to_user(self, username: str) -> User:
         """Returns the user with the given username, or creates a new one if it doesn't exist."""
@@ -275,9 +291,12 @@ class Poll:
                 return item_entry
         return None
 
-    async def remove_item(self, item_entry: ItemEntry) -> None:
+    async def remove_item(
+        self, item_entry: ItemEntry, send_update: bool = True
+    ) -> None:
         self.item_entries.remove(item_entry)
-        await self.update_status_messages()
+        if send_update:
+            await self.update_status_messages()
 
     async def update_status_messages(self) -> None:
         for event_id in self.status_messages:
